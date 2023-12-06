@@ -1,4 +1,6 @@
 [versions]
+kotlinxDatetime = "0.5.0"
+kotlinxSerializationJson = "1.6.2"
 ktor = "2.3.6"
 logback = "1.4.13"
 compose = "1.5.4"
@@ -22,6 +24,8 @@ junit = "4.13.2"
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 logback = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
