@@ -10,7 +10,5 @@ data class Transaction(
     val id: UUID,
     val transactionAmount: Float,
     val note: String,
-    val transactionDate: LocalDate,
-    @Serializable(with = JavaUUIDSerializer::class)
-    val bucketId: UUID
+    val transactionDate: LocalDate
 )
