@@ -1,4 +1,5 @@
 [versions]
+decompose = "3.0.0-alpha01"
 kotlinxDatetime = "0.5.0"
 kotlinxSerializationJson = "1.6.2"
 ktor = "2.3.6"
@@ -21,6 +22,8 @@ kotlin = "1.9.21"
 junit = "4.13.2"
 
 [libraries]
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-extensions = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

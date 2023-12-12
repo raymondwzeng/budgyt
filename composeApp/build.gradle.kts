@@ -37,6 +37,8 @@ kotlin {
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.decompose)
+            implementation(libs.decompose.extensions)
         }
     }
 }
