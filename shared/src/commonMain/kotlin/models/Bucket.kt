@@ -12,6 +12,5 @@ data class Bucket(
     @Serializable(with = JavaUUIDSerializer::class)
     val id: UUID,
     val bucketName: String,
-    val bucketType: BucketType,
     val transactions: List<Transaction>
 )
