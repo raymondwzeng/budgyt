@@ -24,9 +24,9 @@ import viewmodels.ListComponent
 @Composable
 fun BucketsView(component: ListComponent) { //Really, this is a bucket of buckets.
     val bucketsState = component.model.subscribeAsState()
-    Column {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         //This component should also hold the state for the inner internal items
-        LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
+        LazyColumn {
             items(bucketsState.value) { container ->
                 Text(
                     text = when(container.containerType) {
