@@ -20,6 +20,8 @@ interface BaseViewModel {
     sealed class Child {
         class ListChild(val component: ListComponent): Child()
         class DetailsChild(val component: DetailsComponent): Child()
+
+        class AddTransactionChild(val component: ListComponent): Child()
     }
 }
 
@@ -43,13 +45,17 @@ class BudgetOverviewViewModel(componentContext: ComponentContext): BaseViewModel
         return when(config) {
             is Config.List -> BaseViewModel.Child.ListChild(listComponent(componentContext))
             is Config.Details -> BaseViewModel.Child.DetailsChild(detailsComponent(componentContext, config))
+            is Config.Add -> BaseViewModel.Child.AddTransactionChild(listComponent(componentContext))
         }
     }
 
     private fun listComponent(componentContext: ComponentContext): ListComponent {
-        return DefaultListComponent(componentContext) { bucket ->
+        return DefaultListComponent(componentContext, onItemSelected = { bucket ->
             navigation.push(configuration = Config.Details(bucket))
+        }, onAddTransactionSelected = {
+            navigation.push(configuration = Config.Add)
         }
+        )
     }
 
     private fun detailsComponent(componentContext: ComponentContext, config: Config.Details): DetailsComponent {
@@ -64,6 +70,8 @@ class BudgetOverviewViewModel(componentContext: ComponentContext): BaseViewModel
     sealed interface Config {
         data object List: Config
         data class Details(val item: Bucket): Config
+
+        data object Add: Config
     }
 }
 

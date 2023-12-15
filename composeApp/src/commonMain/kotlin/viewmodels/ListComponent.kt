@@ -63,15 +63,21 @@ val EXAMPLE_CONTAINERS = listOf(EMPTY_INFLOW_CONTAINER, EXAMPLE_CONTAINER, EMPTY
 interface ListComponent {
     val model: Value<List<Container>>
     fun onItemClicked(item: Bucket)
+    fun onAddTransactionButtonClicked()
 }
 
 class DefaultListComponent(
     componentContext: ComponentContext,
-    private val onItemSelected: (item: Bucket) -> Unit
+    private val onItemSelected: (item: Bucket) -> Unit,
+    private val onAddTransactionSelected: () -> Unit
 ): ListComponent, ComponentContext by componentContext {
     override val model = MutableValue(EXAMPLE_CONTAINERS)
 
     override fun onItemClicked(item: Bucket) {
         onItemSelected(item)
+    }
+
+    override fun onAddTransactionButtonClicked() {
+        onAddTransactionSelected()
     }
 }

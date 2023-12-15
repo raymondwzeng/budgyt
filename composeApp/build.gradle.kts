@@ -40,6 +40,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.decompose)
             implementation(libs.decompose.extensions)
+            implementation("org.jetbrains.compose.material3:material3-desktop:1.5.11")
         }
     }
 }
