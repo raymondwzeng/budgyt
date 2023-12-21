@@ -1,11 +1,10 @@
-import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import viewmodels.BudgetOverviewViewModel
 import javax.swing.SwingUtilities
+import createDatabase
 
 internal fun <T> runOnUiThread(block: () -> T): T {
     if (SwingUtilities.isEventDispatchThread()) {
@@ -34,7 +33,8 @@ fun main() = application {
 
     val root = runOnUiThread {
         BudgetOverviewViewModel (
-            componentContext = DefaultComponentContext(lifecycle = lifecycle)
+            componentContext = DefaultComponentContext(lifecycle = lifecycle),
+            database = createDatabase(DriverFactory())
         )
     }
 

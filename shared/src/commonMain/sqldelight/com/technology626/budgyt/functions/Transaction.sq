@@ -1,0 +1,9 @@
+addTransaction:
+    INSERT INTO BudgetTransaction(id, transaction_amount, transaction_note, transaction_date, bucket_id)
+    VALUES (?, ?, ?, ?, ?);
+
+getAllTransactions:
+    SELECT BudgetTransaction.id, transaction_amount, transaction_note, transaction_date, bucket_id, bucket_name, bucket_type
+    FROM BudgetTransaction, Bucket
+    WHERE BudgetTransaction.id = Bucket.id
+    GROUP BY Bucket.id;

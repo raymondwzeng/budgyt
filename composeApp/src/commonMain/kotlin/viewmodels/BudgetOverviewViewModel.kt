@@ -8,12 +8,13 @@ import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.popTo
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
+import com.technology626.budgyt.budgyt
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.serializer
 import models.Bucket
 
 interface BaseViewModel {
     val callstack: Value<ChildStack<*, Child>>
+    val store: budgyt
 
     fun onBackClicked(toIndex: Int)
 
@@ -25,7 +26,7 @@ interface BaseViewModel {
     }
 }
 
-class BudgetOverviewViewModel(componentContext: ComponentContext): BaseViewModel, ComponentContext by componentContext {
+class BudgetOverviewViewModel(componentContext: ComponentContext, database: budgyt): BaseViewModel, ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
 
     override val callstack =
@@ -36,6 +37,8 @@ class BudgetOverviewViewModel(componentContext: ComponentContext): BaseViewModel
             handleBackButton = true,
             childFactory = ::child
         )
+
+    override val store = database
 
     override fun onBackClicked(toIndex: Int) {
         navigation.popTo(toIndex)
