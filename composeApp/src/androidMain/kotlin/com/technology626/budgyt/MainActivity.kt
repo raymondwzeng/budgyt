@@ -1,13 +1,12 @@
 package com.technology626.budgyt
 
 import App
+import DriverFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.defaultComponentContext
+import createDatabase
 import viewmodels.BudgetOverviewViewModel
 
 class MainActivity : ComponentActivity() {
@@ -15,7 +14,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val root = BudgetOverviewViewModel(
-            componentContext = defaultComponentContext()
+            componentContext = defaultComponentContext(),
+            database = createDatabase(DriverFactory(context = this.applicationContext))
         )
 
         setContent {
