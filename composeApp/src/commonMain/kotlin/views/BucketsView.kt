@@ -45,11 +45,11 @@ fun BucketsView(component: ListComponent) { //Really, this is a bucket of bucket
                 } else {
                     container.buckets.forEach { bucket ->
                         BudgetCard(
-                            name = bucket.bucketName,
+                            name = bucket.value.bucketName,
                             estimatedAmount = 100f,
-                            actualAmount = bucket.transactions.sumOf { it.transactionAmount.toDouble() },
+                            actualAmount = bucket.value.transactions.sumOf { it.transactionAmount.toDouble() },
                             onClick = fun() {
-                                component.onItemClicked(bucket)
+                                component.onItemClicked(bucket.value)
                             }
                         )
                     }

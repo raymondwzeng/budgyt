@@ -20,10 +20,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import models.Bucket
+import models.Transaction
 import viewmodels.ListComponent
 import java.text.NumberFormat
 import java.util.Locale
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,7 +42,6 @@ fun AddTransactionView(component: ListComponent) {
     val transactionDate =
         rememberDatePickerState(initialSelectedDateMillis = System.currentTimeMillis(), initialDisplayMode = DisplayMode.Input)
     val currentBucket = remember { mutableStateOf<Bucket?>(null) }
-    println(component.model.value)
     val expanded = remember { mutableStateOf(false) }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         //TODO: Component-ize
@@ -57,8 +64,8 @@ fun AddTransactionView(component: ListComponent) {
             ) {
                 component.model.value.forEach { container -> //TODO: O(n^2) operation. Can be better?
                     container.buckets.forEach { bucket ->
-                        BucketDropdown(bucket, onClick = {
-                            currentBucket.value = bucket
+                        BucketDropdown(bucket.value, onClick = {
+                            currentBucket.value = bucket.value
                             expanded.value = false
                         })
                     }
@@ -78,7 +85,23 @@ fun AddTransactionView(component: ListComponent) {
         )
         Text(text = "Transaction Date", fontSize = 24.sp)
         DatePicker(state = transactionDate)
-
+        Button(onClick = {
+            val onClickValue = currentBucket.value
+            if(onClickValue != null) {
+                component.transactionAdded(
+                    bucket = onClickValue,
+                    transaction = Transaction(
+                        id = UUID.randomUUID(),
+                        transactionAmount = transactionAmount.value,
+                        note = transactionNote.value,
+                        transactionDate = Instant.fromEpochMilliseconds(transactionDate.selectedDateMillis ?: 0).toLocalDateTime(
+                            TimeZone.UTC).date
+                    )
+                )
+            }
+        }) {
+            Text(text = "Add New Transaction")
+        }
     }
 }
 
