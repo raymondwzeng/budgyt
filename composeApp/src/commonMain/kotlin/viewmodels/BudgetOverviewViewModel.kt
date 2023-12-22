@@ -83,6 +83,8 @@ interface BaseViewModel {
         class DetailsChild(val component: DetailsComponent): Child()
 
         class AddTransactionChild(val component: ListComponent): Child()
+
+        class AddBucketChild(val component: AddBucketComponent) : Child()
     }
 }
 
@@ -111,6 +113,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             is Config.List -> BaseViewModel.Child.ListChild(listComponent(componentContext))
             is Config.Details -> BaseViewModel.Child.DetailsChild(detailsComponent(componentContext, config))
             is Config.Add -> BaseViewModel.Child.AddTransactionChild(listComponent(componentContext))
+            is Config.AddBucket -> BaseViewModel.Child.AddBucketChild(addBucketComponent(componentContext))
         }
     }
 
@@ -138,12 +141,27 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         )
     }
 
+    private fun addBucketComponent(componentContext: ComponentContext): AddBucketComponent {
+        return DefaultAddBucketComponent(
+            componentContext = componentContext,
+            containerState = cache,
+            onAddBucket = { newContainerList ->
+                cache.update {
+                    newContainerList
+                }
+                navigation.pop()
+            }
+        )
+    }
+
     @Serializable
     sealed interface Config {
         data object List: Config
         data class Details(val item: Bucket): Config
 
         data object Add: Config
+
+        data object AddBucket: Config
     }
 }
 
