@@ -43,12 +43,14 @@ val EXAMPLE_BUDGET_2 = listOf(
 val EXAMPLE_BUCKET = Bucket(
     id = UUID.randomUUID(),
     bucketName = "Example Bucket",
+    estimatedAmount = 100f,
     transactions = EXAMPLE_BUDGET
 )
 
 val EXAMPLE_BUCKET_2 = Bucket(
     id = UUID.randomUUID(),
     bucketName = "Example Bucket 2",
+    estimatedAmount = 100f,
     transactions = EXAMPLE_BUDGET_2
 )
 
@@ -56,7 +58,8 @@ val EXAMPLE_CONTAINER = Container(
     containerType = BucketType.OUTFLOW,
     buckets = mapOf(
         EXAMPLE_BUCKET.id to EXAMPLE_BUCKET,
-        EXAMPLE_BUCKET_2.id to EXAMPLE_BUCKET_2)
+        EXAMPLE_BUCKET_2.id to EXAMPLE_BUCKET_2
+    )
 )
 
 val EMPTY_INFLOW_CONTAINER = Container(
@@ -79,14 +82,17 @@ interface BaseViewModel {
     fun onBackClicked(toIndex: Int)
 
     sealed class Child {
-        class ListChild(val component: ListComponent): Child()
-        class DetailsChild(val component: DetailsComponent): Child()
+        class ListChild(val component: ListComponent) : Child()
+        class DetailsChild(val component: DetailsComponent) : Child()
 
-        class AddTransactionChild(val component: ListComponent): Child()
+        class AddTransactionChild(val component: ListComponent) : Child()
+
+        class AddBucketChild(val component: AddBucketComponent) : Child()
     }
 }
 
-class BudgetOverviewViewModel(componentContext: ComponentContext, database: budgyt): BaseViewModel, ComponentContext by componentContext {
+class BudgetOverviewViewModel(componentContext: ComponentContext, database: budgyt) : BaseViewModel,
+    ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
 
     override val cache = MutableValue(EXAMPLE_CONTAINERS)
@@ -107,10 +113,21 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     }
 
     private fun child(config: Config, componentContext: ComponentContext): BaseViewModel.Child {
-        return when(config) {
+        return when (config) {
             is Config.List -> BaseViewModel.Child.ListChild(listComponent(componentContext))
-            is Config.Details -> BaseViewModel.Child.DetailsChild(detailsComponent(componentContext, config))
+            is Config.Details -> BaseViewModel.Child.DetailsChild(
+                detailsComponent(
+                    componentContext,
+                    config
+                )
+            )
+
             is Config.Add -> BaseViewModel.Child.AddTransactionChild(listComponent(componentContext))
+            is Config.AddBucket -> BaseViewModel.Child.AddBucketChild(
+                addBucketComponent(
+                    componentContext
+                )
+            )
         }
     }
 
@@ -126,11 +143,15 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
                     newContainerList
                 }
                 navigation.pop()
-            }
+            },
+            onAddBucketSelected = { navigation.push(configuration = Config.AddBucket) }
         )
     }
 
-    private fun detailsComponent(componentContext: ComponentContext, config: Config.Details): DetailsComponent {
+    private fun detailsComponent(
+        componentContext: ComponentContext,
+        config: Config.Details
+    ): DetailsComponent {
         return DefaultDetailsComponent(
             componentContext = componentContext,
             item = config.item,
@@ -138,12 +159,27 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         )
     }
 
+    private fun addBucketComponent(componentContext: ComponentContext): AddBucketComponent {
+        return DefaultAddBucketComponent(
+            componentContext = componentContext,
+            containerState = cache,
+            onAddBucket = { newContainerList ->
+                cache.update {
+                    newContainerList
+                }
+                navigation.pop()
+            }
+        )
+    }
+
     @Serializable
     sealed interface Config {
-        data object List: Config
-        data class Details(val item: Bucket): Config
+        data object List : Config
+        data class Details(val item: Bucket) : Config
 
-        data object Add: Config
+        data object Add : Config
+
+        data object AddBucket : Config
     }
 }
 

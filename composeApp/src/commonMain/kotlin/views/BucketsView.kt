@@ -29,7 +29,7 @@ fun BucketsView(component: ListComponent) { //Really, this is a bucket of bucket
         LazyColumn {
             items(bucketsState.value) { container ->
                 Text(
-                    text = when(container.containerType) {
+                    text = when (container.containerType) {
                         BucketType.INFLOW -> "Inflow"
                         BucketType.OUTFLOW -> "Outflow"
                         BucketType.FUND -> "Fund"
@@ -37,16 +37,22 @@ fun BucketsView(component: ListComponent) { //Really, this is a bucket of bucket
                     fontSize = 32.sp,
                     modifier = Modifier.padding(8.dp)
                 )
-                if(container.buckets.isEmpty()) {
-                    Card(modifier = Modifier.fillMaxWidth(0.8f)
-                        .padding(16.dp).height(IntrinsicSize.Min), elevation = 4.dp) {
-                        Text("No buckets for this category yet!", textAlign = TextAlign.Center, modifier = Modifier.padding(4.dp))
+                if (container.buckets.isEmpty()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(0.8f)
+                            .padding(16.dp).height(IntrinsicSize.Min), elevation = 4.dp
+                    ) {
+                        Text(
+                            "No buckets for this category yet!",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(4.dp)
+                        )
                     }
                 } else {
                     container.buckets.forEach { bucket ->
                         BudgetCard(
                             name = bucket.value.bucketName,
-                            estimatedAmount = 100f,
+                            estimatedAmount = bucket.value.estimatedAmount,
                             actualAmount = bucket.value.transactions.sumOf { it.transactionAmount.toDouble() },
                             onClick = fun() {
                                 component.onItemClicked(bucket.value)
@@ -57,7 +63,10 @@ fun BucketsView(component: ListComponent) { //Really, this is a bucket of bucket
             }
         }
         Button(onClick = { component.onAddTransactionButtonClicked() }, content = {
-            Text(text= "Add New Transaction")
+            Text(text = "Add New Transaction")
+        })
+        Button(onClick = { component.navigateToAddBucketSelected() }, content = {
+            Text(text = "Add New Bucket")
         })
     }
 }

@@ -56,7 +56,8 @@ fun AddTransactionView(component: ListComponent) {
                     }) {
                         Text(">")
                     }
-                }
+                },
+                readOnly = true
             )
             DropdownMenu(
                 expanded = expanded.value,

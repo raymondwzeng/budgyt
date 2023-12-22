@@ -12,5 +12,6 @@ data class Bucket(
     @Serializable(with = JavaUUIDSerializer::class)
     val id: UUID,
     val bucketName: String,
+    val estimatedAmount: Float,
     val transactions: List<Transaction>
 )
