@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     kotlin("plugin.serialization") version "1.9.21"
+    id("app.cash.sqldelight") version "2.0.1"
 }
 
 kotlin {
@@ -21,6 +22,12 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
         }
+        androidMain.dependencies {
+            implementation("app.cash.sqldelight:android-driver:2.0.1")
+        }
+        jvmMain.dependencies {
+            implementation("app.cash.sqldelight:sqlite-driver:2.0.1")
+        }
     }
 }
 
@@ -29,5 +36,13 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+}
+
+sqldelight {
+    databases {
+        create("budgyt") {
+            packageName.set("com.technology626.budgyt")
+        }
     }
 }
