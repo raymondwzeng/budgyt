@@ -18,6 +18,8 @@ interface ListComponent {
     fun onItemClicked(item: Bucket)
     fun onAddTransactionButtonClicked()
 
+    fun navigateToAddBucketSelected()
+
     fun transactionAdded(bucket: Bucket, transaction: Transaction)
 }
 
@@ -25,6 +27,7 @@ class DefaultListComponent(
     componentContext: ComponentContext,
     private val onItemSelected: (item: Bucket) -> Unit,
     private val onAddTransactionSelected: () -> Unit,
+    private val onAddBucketSelected: () -> Unit,
     private val onTransactionAdded: (newContainerList: List<Container>) -> Unit,
     containerState: Value<List<Container>>
 ): ListComponent, ComponentContext by componentContext {
@@ -35,6 +38,10 @@ class DefaultListComponent(
 
     override fun onAddTransactionButtonClicked() {
         onAddTransactionSelected()
+    }
+
+    override fun navigateToAddBucketSelected() {
+        onAddBucketSelected()
     }
 
     override fun transactionAdded(bucket: Bucket, transaction: Transaction) {

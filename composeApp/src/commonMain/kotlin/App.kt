@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import viewmodels.BaseViewModel
+import views.AddBucketView
 import views.AddTransactionView
 import views.BucketsView
 import views.TransactionsView
@@ -18,6 +19,7 @@ fun App(component: BaseViewModel) {
                 is BaseViewModel.Child.ListChild -> BucketsView(component = (child.value.active.instance as BaseViewModel.Child.ListChild).component)
                 is BaseViewModel.Child.DetailsChild -> TransactionsView(component = (child.value.active.instance as BaseViewModel.Child.DetailsChild).component)
                 is BaseViewModel.Child.AddTransactionChild -> AddTransactionView(component = (child.value.active.instance as BaseViewModel.Child.AddTransactionChild).component)
+                is BaseViewModel.Child.AddBucketChild -> AddBucketView(component = (child.value.active.instance as BaseViewModel.Child.AddBucketChild).component)
             }
         }
     }

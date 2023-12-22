@@ -8,7 +8,7 @@ import models.Container
 import java.util.UUID
 
 interface AddBucketComponent {
-    fun addBucket(bucketName: String, bucketType: BucketType)
+    fun addBucket(bucketName: String, bucketType: BucketType, bucketEstimate: Float)
 }
 
 class DefaultAddBucketComponent(
@@ -16,13 +16,13 @@ class DefaultAddBucketComponent(
     private val containerState: Value<List<Container>>,
     val onAddBucket: (newContainerList: List<Container>) -> Unit
 ) : AddBucketComponent, ComponentContext by componentContext {
-    override fun addBucket(bucketName: String, bucketType: BucketType) {
+    override fun addBucket(bucketName: String, bucketType: BucketType, bucketEstimate: Float) {
         val newContainerList = containerState.value.toMutableList()
         val containerIndex =
             newContainerList.indexOfFirst { container -> container.containerType == bucketType }
         val currentContainer = newContainerList[containerIndex]
         val newBucket =
-            Bucket(id = UUID.randomUUID(), bucketName = bucketName, transactions = emptyList())
+            Bucket(id = UUID.randomUUID(), bucketName = bucketName, transactions = emptyList(), estimatedAmount = bucketEstimate)
         newContainerList[containerIndex] =
             currentContainer.copy(buckets = currentContainer.buckets + mapOf(newBucket.id to newBucket))
         onAddBucket(newContainerList)
