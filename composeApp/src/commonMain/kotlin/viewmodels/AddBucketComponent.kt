@@ -22,7 +22,7 @@ class DefaultAddBucketComponent(
             newContainerList.indexOfFirst { container -> container.containerType == bucketType }
         val currentContainer = newContainerList[containerIndex]
         val newBucket =
-            Bucket(id = UUID.randomUUID(), bucketName = bucketName, transactions = emptyList(), estimatedAmount = bucketEstimate)
+            Bucket(id = UUID.randomUUID(), bucketName = bucketName, transactions = emptyList(), estimatedAmount = bucketEstimate, bucketType = bucketType)
         newContainerList[containerIndex] =
             currentContainer.copy(buckets = currentContainer.buckets + mapOf(newBucket.id to newBucket))
         onAddBucket(newContainerList)

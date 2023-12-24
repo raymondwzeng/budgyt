@@ -5,6 +5,7 @@ import com.technology626.budgyt.budgyt
 
 actual class DriverFactory(private val context: Context) {
     actual fun createDriver(): SqlDriver {
+        context.deleteDatabase("budgyt.db")
         return AndroidSqliteDriver(budgyt.Schema, context, "budgyt.db")
     }
 }

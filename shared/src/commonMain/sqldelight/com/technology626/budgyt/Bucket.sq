@@ -3,6 +3,7 @@ import models.BucketType;
 
 CREATE TABLE Bucket(
     id TEXT AS UUID PRIMARY KEY NOT NULL,
-    bucket_name TEXT UNIQUE NOT NULL,
-    bucket_type TEXT AS BucketType NOT NULL
+    bucket_name TEXT NOT NULL,
+    bucket_type TEXT AS BucketType NOT NULL,
+    bucket_estimate REAL NOT NULL DEFAULT 0
 );

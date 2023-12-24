@@ -19,13 +19,15 @@ import models.Bucket
 import models.BucketType
 import models.Container
 import models.Transaction
+import models.toApplicationDataModel
+import models.toContainerList
 import java.util.UUID
 
 val EXAMPLE_BUDGET = listOf(
     Transaction(
         id = UUID.randomUUID(),
-        note = "Test note",
-        transactionAmount = 12.2f,
+        note = "First contribution of month",
+        transactionAmount = 1277f,
         transactionDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
     )
 )
@@ -38,41 +40,6 @@ val EXAMPLE_BUDGET_2 = listOf(
         transactionDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
     )
 )
-
-
-val EXAMPLE_BUCKET = Bucket(
-    id = UUID.randomUUID(),
-    bucketName = "Example Bucket",
-    estimatedAmount = 100f,
-    transactions = EXAMPLE_BUDGET
-)
-
-val EXAMPLE_BUCKET_2 = Bucket(
-    id = UUID.randomUUID(),
-    bucketName = "Example Bucket 2",
-    estimatedAmount = 100f,
-    transactions = EXAMPLE_BUDGET_2
-)
-
-val EXAMPLE_CONTAINER = Container(
-    containerType = BucketType.OUTFLOW,
-    buckets = mapOf(
-        EXAMPLE_BUCKET.id to EXAMPLE_BUCKET,
-        EXAMPLE_BUCKET_2.id to EXAMPLE_BUCKET_2
-    )
-)
-
-val EMPTY_INFLOW_CONTAINER = Container(
-    containerType = BucketType.INFLOW,
-    buckets = emptyMap()
-)
-
-val EMPTY_FUND_CONTAINER = Container(
-    containerType = BucketType.FUND,
-    buckets = emptyMap()
-)
-
-val EXAMPLE_CONTAINERS = listOf(EMPTY_INFLOW_CONTAINER, EXAMPLE_CONTAINER, EMPTY_FUND_CONTAINER)
 
 interface BaseViewModel {
     val callstack: Value<ChildStack<*, Child>>
@@ -90,12 +57,25 @@ interface BaseViewModel {
         class AddBucketChild(val component: AddBucketComponent) : Child()
     }
 }
-
 class BudgetOverviewViewModel(componentContext: ComponentContext, database: budgyt) : BaseViewModel,
     ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
 
-    override val cache = MutableValue(EXAMPLE_CONTAINERS)
+    override val cache = MutableValue(emptyList<Container>())
+
+    init {
+        val testBucketId = UUID.randomUUID()
+        println("Adding sample data")
+        database.bucketQueries.addBucket(id = testBucketId, bucket_name = "401k Contributions", bucket_type = BucketType.INFLOW, bucket_estimate = 1766.0)
+        database.transactionQueries.addTransaction(id = EXAMPLE_BUDGET.first().id, transaction_amount = EXAMPLE_BUDGET.first().transactionAmount.toDouble(), transaction_note = "", transaction_date = EXAMPLE_BUDGET.first().transactionDate, bucket_id = testBucketId)
+        println("Querying database")
+        database.bucketQueries.getBuckets().executeAsList().map { buckets -> buckets.toApplicationDataModel(budgyt = database) }
+        cache.update {
+            database.bucketQueries.getBuckets().executeAsList().map { bucket -> bucket.toApplicationDataModel(budgyt = database) }.toContainerList()
+      }
+        println("Cache is now ${cache.value}")
+    }
+
 
     override val callstack =
         childStack(
@@ -182,4 +162,5 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         data object AddBucket : Config
     }
 }
+
 
