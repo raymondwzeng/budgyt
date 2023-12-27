@@ -21,12 +21,14 @@ class DefaultTransactionComponent(
     componentContext: ComponentContext,
     override val currentTransaction: Transaction?,
     private val database: budgyt,
-    private val onTransactionAdded: () -> Unit
-    ) : TransactionComponent,
+    private val onTransactionUpdated: () -> Unit
+) : TransactionComponent,
     ComponentContext by componentContext {
 
     override val listBuckets: List<Bucket>
-        get() = database.bucketQueries.getBuckets().executeAsList().map { bucket -> bucket.toApplicationDataModel() }
+        get() = database.bucketQueries.getBuckets().executeAsList()
+            .map { bucket -> bucket.toApplicationDataModel() }
+
     override fun createTransaction(bucket: Bucket, transaction: Transaction) {
         database.transactionQueries.addTransaction(
             id = transaction.id,
@@ -35,7 +37,7 @@ class DefaultTransactionComponent(
             transaction_note = transaction.note,
             transaction_amount = transaction.transactionAmount.toDouble()
         )
-        onTransactionAdded()
+        onTransactionUpdated()
     }
 
     override fun updateTransaction(
@@ -43,10 +45,18 @@ class DefaultTransactionComponent(
         oldTransaction: Transaction,
         newTransaction: Transaction
     ) {
-        TODO("Not yet implemented")
+        database.transactionQueries.updateTransaction(
+            transaction_amount = newTransaction.transactionAmount.toDouble(),
+            transaction_note = newTransaction.note,
+            transaction_date = newTransaction.transactionDate,
+            bucket_id = bucket.id,
+            id = oldTransaction.id
+        )
+        onTransactionUpdated()
     }
 
     override fun deleteTransaction(transactionId: UUID) {
-        TODO("Not yet implemented")
+        database.transactionQueries.deleteTransaction(id = transactionId)
+        onTransactionUpdated()
     }
 }

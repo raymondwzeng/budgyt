@@ -16,7 +16,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import kotlinx.serialization.Serializable
 import models.Bucket
-import models.BucketType
 import models.Container
 import models.Transaction
 import models.toApplicationDataModel
@@ -132,7 +131,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             componentContext = componentContext,
             database = store,
             currentTransaction = transaction,
-            onTransactionAdded = {
+            onTransactionUpdated = {
                 cache.update {
                     store.bucketQueries.getBuckets().executeAsList()
                         .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }

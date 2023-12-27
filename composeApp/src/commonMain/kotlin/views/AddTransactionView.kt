@@ -116,6 +116,33 @@ fun AddTransactionView(component: TransactionComponent) {
         }) {
             Text(text = "Add New Transaction")
         }
+        val transaction = component.currentTransaction
+        if (transaction != null) {
+            Button(onClick = {
+                transaction.id.let { uuid ->
+                    component.deleteTransaction(uuid)
+                }
+            }) {
+                Text(text = "Delete Transaction")
+            }
+            Button(onClick = {
+                val selectedBucket = currentBucket.value
+                if (selectedBucket != null) {
+                    component.updateTransaction(
+                        selectedBucket, transaction, transaction.copy(
+                            transactionAmount = transactionAmount.value,
+                            transactionDate = Instant.fromEpochMilliseconds(transactionDate.selectedDateMillis ?: 0)
+                                .toLocalDateTime(
+                                    TimeZone.UTC
+                                ).date,
+                            note = transactionNote.value
+                        )
+                    )
+                }
+            }) {
+                Text(text = "Update Transaction")
+            }
+        }
     }
 }
 
