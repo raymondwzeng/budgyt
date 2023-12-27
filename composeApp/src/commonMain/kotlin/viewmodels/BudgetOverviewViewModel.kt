@@ -52,7 +52,7 @@ interface BaseViewModel {
         class ListChild(val component: ListComponent) : Child()
         class DetailsChild(val component: DetailsComponent) : Child()
 
-        class AddTransactionChild(val component: ListComponent) : Child()
+        class AddTransactionChild(val component: TransactionComponent) : Child()
 
         class AddBucketChild(val component: AddBucketComponent) : Child()
     }
@@ -96,7 +96,13 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
                 )
             )
 
-            is Config.Add -> BaseViewModel.Child.AddTransactionChild(listComponent(componentContext))
+            is Config.Add -> BaseViewModel.Child.AddTransactionChild(
+                transactionComponent(
+                    componentContext,
+                    config.item
+                )
+            )
+
             is Config.AddBucket -> BaseViewModel.Child.AddBucketChild(
                 addBucketComponent(
                     componentContext
@@ -107,13 +113,25 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
 
     private fun listComponent(componentContext: ComponentContext): ListComponent {
         return DefaultListComponent(componentContext = componentContext,
-            database = store,
+            model = cache,
             onItemSelected = { bucket ->
                 navigation.push(configuration = Config.Details(bucket))
             },
-            onAddTransactionSelected = {
-                navigation.push(configuration = Config.Add)
+            onAddTransactionSelected = { transaction ->
+                navigation.push(configuration = Config.Add(transaction))
             },
+            onAddBucketSelected = { navigation.push(configuration = Config.AddBucket) }
+        )
+    }
+
+    private fun transactionComponent(
+        componentContext: ComponentContext,
+        transaction: Transaction?
+    ): TransactionComponent {
+        return DefaultTransactionComponent(
+            componentContext = componentContext,
+            database = store,
+            currentTransaction = transaction,
             onTransactionAdded = {
                 cache.update {
                     store.bucketQueries.getBuckets().executeAsList()
@@ -121,8 +139,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
                         .toContainerList()
                 }
                 navigation.pop()
-            },
-            onAddBucketSelected = { navigation.push(configuration = Config.AddBucket) }
+            }
         )
     }
 
@@ -157,7 +174,8 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         data object List : Config
         data class Details(val item: Bucket) : Config
 
-        data object Add : Config
+        data class Add(val item: Transaction?) : Config
+
 
         data object AddBucket : Config
     }

@@ -25,22 +25,32 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import models.Bucket
 import models.Transaction
 import viewmodels.ListComponent
+import viewmodels.TransactionComponent
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTransactionView(component: ListComponent) {
+fun AddTransactionView(component: TransactionComponent) {
     val formatter = NumberFormat.getCurrencyInstance(Locale.US)
-    val transactionAmount = remember { mutableStateOf(0f) }
-    val transactionNote = remember { mutableStateOf("") }
+    val transactionAmount =
+        remember { mutableStateOf(component.currentTransaction?.transactionAmount ?: 0f) }
+    val transactionNote = remember { mutableStateOf(component.currentTransaction?.note ?: "") }
     val transactionDate =
-        rememberDatePickerState(initialSelectedDateMillis = System.currentTimeMillis(), initialDisplayMode = DisplayMode.Input)
+        rememberDatePickerState(
+            initialSelectedDateMillis = if (component.currentTransaction != null) {
+                component.currentTransaction?.transactionDate.toString().toInstant()
+                    .toEpochMilliseconds()
+            } else {
+                System.currentTimeMillis()
+            }, initialDisplayMode = DisplayMode.Input
+        )
     val currentBucket = remember { mutableStateOf<Bucket?>(null) }
     val expanded = remember { mutableStateOf(false) }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -63,20 +73,20 @@ fun AddTransactionView(component: ListComponent) {
                 expanded = expanded.value,
                 onDismissRequest = { expanded.value = false }
             ) {
-                component.model.value.forEach { container -> //TODO: O(n^2) operation. Can be better?
-                    container.buckets.forEach { bucket ->
-                        BucketDropdown(bucket.value, onClick = {
-                            currentBucket.value = bucket.value
-                            expanded.value = false
-                        })
-                    }
+                component.listBuckets.forEach { bucket ->
+                    BucketDropdown(bucket, onClick = {
+                        currentBucket.value = bucket
+                        expanded.value = false
+                    })
                 }
             }
         }
         Text(text = "Transaction Amount", fontSize = 24.sp)
         TextField(
             value = formatter.format(transactionAmount.value),
-            onValueChange = { newAmount -> transactionAmount.value = newAmount.substring(1).toFloat() },
+            onValueChange = { newAmount ->
+                transactionAmount.value = newAmount.substring(1).toFloat()
+            },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
         )
         Text(text = "Transaction Note", fontSize = 24.sp)
@@ -88,15 +98,18 @@ fun AddTransactionView(component: ListComponent) {
         DatePicker(state = transactionDate)
         Button(onClick = {
             val onClickValue = currentBucket.value
-            if(onClickValue != null) {
-                component.transactionAdded(
+            if (onClickValue != null) {
+                component.createTransaction(
                     bucket = onClickValue,
                     transaction = Transaction(
                         id = UUID.randomUUID(),
                         transactionAmount = transactionAmount.value,
                         note = transactionNote.value,
-                        transactionDate = Instant.fromEpochMilliseconds(transactionDate.selectedDateMillis ?: 0).toLocalDateTime(
-                            TimeZone.UTC).date
+                        transactionDate = Instant.fromEpochMilliseconds(
+                            transactionDate.selectedDateMillis ?: 0
+                        ).toLocalDateTime(
+                            TimeZone.UTC
+                        ).date
                     )
                 )
             }
