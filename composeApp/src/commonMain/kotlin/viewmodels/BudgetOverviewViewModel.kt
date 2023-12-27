@@ -11,34 +11,12 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
 import com.technology626.budgyt.budgyt
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.todayIn
 import kotlinx.serialization.Serializable
 import models.Bucket
 import models.Container
 import models.Transaction
 import models.toApplicationDataModel
 import models.toContainerList
-import java.util.UUID
-
-val EXAMPLE_BUDGET = listOf(
-    Transaction(
-        id = UUID.randomUUID(),
-        note = "First contribution of month",
-        transactionAmount = 1277f,
-        transactionDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
-    )
-)
-
-val EXAMPLE_BUDGET_2 = listOf(
-    Transaction(
-        id = UUID.randomUUID(),
-        note = "Test note 2",
-        transactionAmount = 42.3f,
-        transactionDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
-    )
-)
 
 interface BaseViewModel {
     val callstack: Value<ChildStack<*, Child>>
@@ -49,9 +27,11 @@ interface BaseViewModel {
 
     sealed class Child {
         class ListChild(val component: ListComponent) : Child()
-        class DetailsChild(val component: DetailsComponent) : Child()
+        class BucketDetailsChild(val component: DetailsComponent) : Child()
 
-        class AddTransactionChild(val component: TransactionComponent) : Child()
+        class AddTransactionChild(val component: EditTransactionComponent) : Child()
+
+        class TransactionDetailsChild(val component: TransactionDetailsComponent) : Child()
 
         class AddBucketChild(val component: AddBucketComponent) : Child()
     }
@@ -88,15 +68,15 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     private fun child(config: Config, componentContext: ComponentContext): BaseViewModel.Child {
         return when (config) {
             is Config.List -> BaseViewModel.Child.ListChild(listComponent(componentContext))
-            is Config.Details -> BaseViewModel.Child.DetailsChild(
-                detailsComponent(
+            is Config.Details -> BaseViewModel.Child.BucketDetailsChild(
+                bucketDetailsComponent(
                     componentContext,
                     config
                 )
             )
 
             is Config.Add -> BaseViewModel.Child.AddTransactionChild(
-                transactionComponent(
+                editTransactionComponent(
                     componentContext,
                     config.item
                 )
@@ -107,7 +87,40 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
                     componentContext
                 )
             )
+
+            is Config.TransactionDetails -> BaseViewModel.Child.TransactionDetailsChild(
+                transactionDetailsComponent(
+                    componentContext,
+                    config.item
+                )
+            )
         }
+    }
+
+    private fun updateCache() {
+        cache.update {
+            store.bucketQueries.getBuckets().executeAsList()
+                .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }
+                .toContainerList()
+        }
+    }
+
+    private fun transactionDetailsComponent(
+        componentContext: ComponentContext,
+        transaction: Transaction
+    ): TransactionDetailsComponent {
+        return DefaultTransactionDetailsComponent(
+            componentContext = componentContext,
+            database = store,
+            transactionModel = MutableValue(transaction), //TODO: This probably binds improperly
+            onDeleteTransaction = {
+                updateCache()
+                navigation.pop()
+            },
+            onNavigateToEditTransactionDetails = { selectedTransaction ->
+                navigation.push(Config.Add(selectedTransaction))
+            }
+        )
     }
 
     private fun listComponent(componentContext: ComponentContext): ListComponent {
@@ -123,33 +136,32 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         )
     }
 
-    private fun transactionComponent(
+    private fun editTransactionComponent(
         componentContext: ComponentContext,
         transaction: Transaction?
-    ): TransactionComponent {
-        return DefaultTransactionComponent(
+    ): EditTransactionComponent {
+        return DefaultEditTransactionComponent(
             componentContext = componentContext,
             database = store,
             currentTransaction = transaction,
             onTransactionUpdated = {
-                cache.update {
-                    store.bucketQueries.getBuckets().executeAsList()
-                        .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }
-                        .toContainerList()
-                }
+                updateCache()
                 navigation.pop()
             }
         )
     }
 
-    private fun detailsComponent(
+    private fun bucketDetailsComponent(
         componentContext: ComponentContext,
         config: Config.Details
     ): DetailsComponent {
         return DefaultDetailsComponent(
             componentContext = componentContext,
             item = config.item,
-            onFinished = navigation::pop
+            onFinished = navigation::pop,
+            onNavigateToTransactionDetails = { transaction ->
+                navigation.push(configuration = Config.TransactionDetails(transaction))
+            }
         )
     }
 
@@ -158,11 +170,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             componentContext = componentContext,
             database = store,
             onAddBucket = {
-                cache.update {
-                    store.bucketQueries.getBuckets().executeAsList()
-                        .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }
-                        .toContainerList()
-                }
+                updateCache()
                 navigation.pop()
             }
         )
@@ -172,6 +180,8 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     sealed interface Config {
         data object List : Config
         data class Details(val item: Bucket) : Config
+
+        data class TransactionDetails(val item: Transaction) : Config
 
         data class Add(val item: Transaction?) : Config
 

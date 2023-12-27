@@ -6,8 +6,9 @@ import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import viewmodels.BaseViewModel
 import views.AddBucketView
-import views.AddTransactionView
+import views.EditTransactionView
 import views.BucketsView
+import views.TransactionDetailView
 import views.TransactionsView
 
 @Composable
@@ -17,9 +18,10 @@ fun App(component: BaseViewModel) {
         Surface(modifier = Modifier.fillMaxSize()) {
             when(child.value.active.instance) {
                 is BaseViewModel.Child.ListChild -> BucketsView(component = (child.value.active.instance as BaseViewModel.Child.ListChild).component)
-                is BaseViewModel.Child.DetailsChild -> TransactionsView(component = (child.value.active.instance as BaseViewModel.Child.DetailsChild).component)
-                is BaseViewModel.Child.AddTransactionChild -> AddTransactionView(component = (child.value.active.instance as BaseViewModel.Child.AddTransactionChild).component)
+                is BaseViewModel.Child.BucketDetailsChild -> TransactionsView(component = (child.value.active.instance as BaseViewModel.Child.BucketDetailsChild).component)
+                is BaseViewModel.Child.AddTransactionChild -> EditTransactionView(component = (child.value.active.instance as BaseViewModel.Child.AddTransactionChild).component)
                 is BaseViewModel.Child.AddBucketChild -> AddBucketView(component = (child.value.active.instance as BaseViewModel.Child.AddBucketChild).component)
+                is BaseViewModel.Child.TransactionDetailsChild -> TransactionDetailView(component = (child.value.active.instance as BaseViewModel.Child.TransactionDetailsChild).component)
             }
         }
     }

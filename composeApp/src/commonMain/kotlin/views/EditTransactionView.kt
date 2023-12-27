@@ -1,7 +1,6 @@
 package views
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
@@ -17,27 +16,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import models.Bucket
 import models.Transaction
-import viewmodels.ListComponent
-import viewmodels.TransactionComponent
+import viewmodels.EditTransactionComponent
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTransactionView(component: TransactionComponent) {
+fun EditTransactionView(component: EditTransactionComponent) {
     val formatter = NumberFormat.getCurrencyInstance(Locale.US)
     val transactionAmount =
         remember { mutableStateOf(component.currentTransaction?.transactionAmount ?: 0f) }
@@ -45,8 +40,7 @@ fun AddTransactionView(component: TransactionComponent) {
     val transactionDate =
         rememberDatePickerState(
             initialSelectedDateMillis = if (component.currentTransaction != null) {
-                component.currentTransaction?.transactionDate.toString().toInstant()
-                    .toEpochMilliseconds()
+                component.currentTransaction?.transactionDate?.atStartOfDayIn(TimeZone.UTC)?.toEpochMilliseconds()
             } else {
                 System.currentTimeMillis()
             }, initialDisplayMode = DisplayMode.Input

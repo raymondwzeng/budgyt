@@ -21,8 +21,14 @@ fun TransactionsView(component: DetailsComponent) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = bucketState.value.bucketName, fontSize = 32.sp)
         LazyColumn {
-            items(bucketState.value.transactions) {transaction: Transaction ->
-                TransactionItem(modifier = Modifier.fillMaxWidth(0.7f), transaction = transaction)
+            items(bucketState.value.transactions) { transaction: Transaction ->
+                TransactionItem(
+                    modifier = Modifier.fillMaxWidth(0.7f),
+                    transaction = transaction,
+                    onClick = {
+                        component.navigateToTransactionDetail(transaction)
+                    }
+                )
             }
         }
     }

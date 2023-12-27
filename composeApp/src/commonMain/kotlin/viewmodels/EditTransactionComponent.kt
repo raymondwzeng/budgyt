@@ -7,7 +7,7 @@ import models.Transaction
 import models.toApplicationDataModel
 import java.util.UUID
 
-interface TransactionComponent {
+interface EditTransactionComponent {
     val currentTransaction: Transaction?
     val listBuckets: List<Bucket>
     fun createTransaction(bucket: Bucket, transaction: Transaction)
@@ -15,14 +15,15 @@ interface TransactionComponent {
     fun updateTransaction(bucket: Bucket, oldTransaction: Transaction, newTransaction: Transaction)
 
     fun deleteTransaction(transactionId: UUID)
+
 }
 
-class DefaultTransactionComponent(
+class DefaultEditTransactionComponent(
     componentContext: ComponentContext,
     override val currentTransaction: Transaction?,
     private val database: budgyt,
-    private val onTransactionUpdated: () -> Unit
-) : TransactionComponent,
+    private val onTransactionUpdated: () -> Unit,
+) : EditTransactionComponent,
     ComponentContext by componentContext {
 
     override val listBuckets: List<Bucket>
