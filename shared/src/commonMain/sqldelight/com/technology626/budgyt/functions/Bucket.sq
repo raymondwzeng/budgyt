@@ -1,0 +1,7 @@
+addBucket:
+    INSERT INTO Bucket(id, bucket_name, bucket_type, bucket_estimate)
+    VALUES (?, ?, ?, ?);
+
+getBuckets:
+    SELECT id, bucket_name, bucket_type, bucket_estimate
+    FROM Bucket;

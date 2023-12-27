@@ -3,9 +3,9 @@ import kotlinx.datetime.LocalDate;
 
 CREATE TABLE BudgetTransaction (
     id TEXT AS UUID PRIMARY KEY NOT NULL,
-    transaction_amount REAL NOT NULL,
-    transaction_note TEXT,
+    transaction_amount REAL NOT NULL DEFAULT 0,
+    transaction_note TEXT NOT NULL DEFAULT '',
     transaction_date TEXT AS LocalDate NOT NULL,
-    bucket_id TEXT AS UUID,
+    bucket_id TEXT AS UUID NOT NULL,
     FOREIGN KEY (bucket_id) REFERENCES Bucket(id)
 );

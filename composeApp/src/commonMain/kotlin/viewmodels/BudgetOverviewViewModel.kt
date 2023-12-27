@@ -19,13 +19,15 @@ import models.Bucket
 import models.BucketType
 import models.Container
 import models.Transaction
+import models.toApplicationDataModel
+import models.toContainerList
 import java.util.UUID
 
 val EXAMPLE_BUDGET = listOf(
     Transaction(
         id = UUID.randomUUID(),
-        note = "Test note",
-        transactionAmount = 12.2f,
+        note = "First contribution of month",
+        transactionAmount = 1277f,
         transactionDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
     )
 )
@@ -38,41 +40,6 @@ val EXAMPLE_BUDGET_2 = listOf(
         transactionDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
     )
 )
-
-
-val EXAMPLE_BUCKET = Bucket(
-    id = UUID.randomUUID(),
-    bucketName = "Example Bucket",
-    estimatedAmount = 100f,
-    transactions = EXAMPLE_BUDGET
-)
-
-val EXAMPLE_BUCKET_2 = Bucket(
-    id = UUID.randomUUID(),
-    bucketName = "Example Bucket 2",
-    estimatedAmount = 100f,
-    transactions = EXAMPLE_BUDGET_2
-)
-
-val EXAMPLE_CONTAINER = Container(
-    containerType = BucketType.OUTFLOW,
-    buckets = mapOf(
-        EXAMPLE_BUCKET.id to EXAMPLE_BUCKET,
-        EXAMPLE_BUCKET_2.id to EXAMPLE_BUCKET_2
-    )
-)
-
-val EMPTY_INFLOW_CONTAINER = Container(
-    containerType = BucketType.INFLOW,
-    buckets = emptyMap()
-)
-
-val EMPTY_FUND_CONTAINER = Container(
-    containerType = BucketType.FUND,
-    buckets = emptyMap()
-)
-
-val EXAMPLE_CONTAINERS = listOf(EMPTY_INFLOW_CONTAINER, EXAMPLE_CONTAINER, EMPTY_FUND_CONTAINER)
 
 interface BaseViewModel {
     val callstack: Value<ChildStack<*, Child>>
@@ -95,7 +62,16 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
 
-    override val cache = MutableValue(EXAMPLE_CONTAINERS)
+    override val cache = MutableValue(emptyList<Container>())
+
+    override val store by lazy { database }
+
+    init {
+        cache.update {
+            store.bucketQueries.getBuckets().executeAsList()
+                .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }.toContainerList()
+        }
+    }
 
     override val callstack =
         childStack(
@@ -105,8 +81,6 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             handleBackButton = true,
             childFactory = ::child
         )
-
-    override val store = database
 
     override fun onBackClicked(toIndex: Int) {
         navigation.popTo(toIndex)
@@ -132,15 +106,19 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     }
 
     private fun listComponent(componentContext: ComponentContext): ListComponent {
-        return DefaultListComponent(componentContext, onItemSelected = { bucket ->
-            navigation.push(configuration = Config.Details(bucket))
-        }, onAddTransactionSelected = {
-            navigation.push(configuration = Config.Add)
-        },
-            containerState = cache,
-            onTransactionAdded = { newContainerList ->
+        return DefaultListComponent(componentContext = componentContext,
+            database = store,
+            onItemSelected = { bucket ->
+                navigation.push(configuration = Config.Details(bucket))
+            },
+            onAddTransactionSelected = {
+                navigation.push(configuration = Config.Add)
+            },
+            onTransactionAdded = {
                 cache.update {
-                    newContainerList
+                    store.bucketQueries.getBuckets().executeAsList()
+                        .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }
+                        .toContainerList()
                 }
                 navigation.pop()
             },
@@ -162,10 +140,12 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     private fun addBucketComponent(componentContext: ComponentContext): AddBucketComponent {
         return DefaultAddBucketComponent(
             componentContext = componentContext,
-            containerState = cache,
-            onAddBucket = { newContainerList ->
+            database = store,
+            onAddBucket = {
                 cache.update {
-                    newContainerList
+                    store.bucketQueries.getBuckets().executeAsList()
+                        .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }
+                        .toContainerList()
                 }
                 navigation.pop()
             }
@@ -182,4 +162,5 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         data object AddBucket : Config
     }
 }
+
 

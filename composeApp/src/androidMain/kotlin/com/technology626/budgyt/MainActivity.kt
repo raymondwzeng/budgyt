@@ -18,6 +18,7 @@ class MainActivity : ComponentActivity() {
             database = createDatabase(DriverFactory(context = this.applicationContext))
         )
 
+
         setContent {
             App(root)
         }
