@@ -57,25 +57,21 @@ interface BaseViewModel {
         class AddBucketChild(val component: AddBucketComponent) : Child()
     }
 }
+
 class BudgetOverviewViewModel(componentContext: ComponentContext, database: budgyt) : BaseViewModel,
     ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
 
     override val cache = MutableValue(emptyList<Container>())
 
-    init {
-        val testBucketId = UUID.randomUUID()
-        println("Adding sample data")
-        database.bucketQueries.addBucket(id = testBucketId, bucket_name = "401k Contributions", bucket_type = BucketType.INFLOW, bucket_estimate = 1766.0)
-        database.transactionQueries.addTransaction(id = EXAMPLE_BUDGET.first().id, transaction_amount = EXAMPLE_BUDGET.first().transactionAmount.toDouble(), transaction_note = "", transaction_date = EXAMPLE_BUDGET.first().transactionDate, bucket_id = testBucketId)
-        println("Querying database")
-        database.bucketQueries.getBuckets().executeAsList().map { buckets -> buckets.toApplicationDataModel(budgyt = database) }
-        cache.update {
-            database.bucketQueries.getBuckets().executeAsList().map { bucket -> bucket.toApplicationDataModel(budgyt = database) }.toContainerList()
-      }
-        println("Cache is now ${cache.value}")
-    }
+    override val store by lazy { database }
 
+    init {
+        cache.update {
+            store.bucketQueries.getBuckets().executeAsList()
+                .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }.toContainerList()
+        }
+    }
 
     override val callstack =
         childStack(
@@ -85,8 +81,6 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             handleBackButton = true,
             childFactory = ::child
         )
-
-    override val store = database
 
     override fun onBackClicked(toIndex: Int) {
         navigation.popTo(toIndex)
@@ -112,15 +106,19 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     }
 
     private fun listComponent(componentContext: ComponentContext): ListComponent {
-        return DefaultListComponent(componentContext, onItemSelected = { bucket ->
-            navigation.push(configuration = Config.Details(bucket))
-        }, onAddTransactionSelected = {
-            navigation.push(configuration = Config.Add)
-        },
-            containerState = cache,
-            onTransactionAdded = { newContainerList ->
+        return DefaultListComponent(componentContext = componentContext,
+            database = store,
+            onItemSelected = { bucket ->
+                navigation.push(configuration = Config.Details(bucket))
+            },
+            onAddTransactionSelected = {
+                navigation.push(configuration = Config.Add)
+            },
+            onTransactionAdded = {
                 cache.update {
-                    newContainerList
+                    store.bucketQueries.getBuckets().executeAsList()
+                        .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }
+                        .toContainerList()
                 }
                 navigation.pop()
             },
@@ -142,10 +140,12 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     private fun addBucketComponent(componentContext: ComponentContext): AddBucketComponent {
         return DefaultAddBucketComponent(
             componentContext = componentContext,
-            containerState = cache,
-            onAddBucket = { newContainerList ->
+            database = store,
+            onAddBucket = {
                 cache.update {
-                    newContainerList
+                    store.bucketQueries.getBuckets().executeAsList()
+                        .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }
+                        .toContainerList()
                 }
                 navigation.pop()
             }
