@@ -90,26 +90,6 @@ fun EditTransactionView(component: EditTransactionComponent) {
         )
         Text(text = "Transaction Date", fontSize = 24.sp)
         DatePicker(state = transactionDate)
-        Button(onClick = {
-            val onClickValue = currentBucket.value
-            if (onClickValue != null) {
-                component.createTransaction(
-                    bucket = onClickValue,
-                    transaction = Transaction(
-                        id = UUID.randomUUID(),
-                        transactionAmount = transactionAmount.value,
-                        note = transactionNote.value,
-                        transactionDate = Instant.fromEpochMilliseconds(
-                            transactionDate.selectedDateMillis ?: 0
-                        ).toLocalDateTime(
-                            TimeZone.UTC
-                        ).date
-                    )
-                )
-            }
-        }) {
-            Text(text = "Add New Transaction")
-        }
         val transaction = component.currentTransaction
         if (transaction != null) {
             Button(onClick = {
@@ -135,6 +115,27 @@ fun EditTransactionView(component: EditTransactionComponent) {
                 }
             }) {
                 Text(text = "Update Transaction")
+            }
+        } else {
+            Button(onClick = {
+                val onClickValue = currentBucket.value
+                if (onClickValue != null) {
+                    component.createTransaction(
+                        bucket = onClickValue,
+                        transaction = Transaction(
+                            id = UUID.randomUUID(),
+                            transactionAmount = transactionAmount.value,
+                            note = transactionNote.value,
+                            transactionDate = Instant.fromEpochMilliseconds(
+                                transactionDate.selectedDateMillis ?: 0
+                            ).toLocalDateTime(
+                                TimeZone.UTC
+                            ).date
+                        )
+                    )
+                }
+            }) {
+                Text(text = "Add New Transaction")
             }
         }
     }
