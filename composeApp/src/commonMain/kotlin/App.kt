@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import viewmodels.BaseViewModel
-import views.AddBucketView
+import views.EditBucketView
 import views.EditTransactionView
 import views.BucketsView
 import views.TransactionDetailView
@@ -20,7 +20,7 @@ fun App(component: BaseViewModel) {
                 is BaseViewModel.Child.ListChild -> BucketsView(component = (child.value.active.instance as BaseViewModel.Child.ListChild).component)
                 is BaseViewModel.Child.BucketDetailsChild -> TransactionsView(component = (child.value.active.instance as BaseViewModel.Child.BucketDetailsChild).component)
                 is BaseViewModel.Child.AddTransactionChild -> EditTransactionView(component = (child.value.active.instance as BaseViewModel.Child.AddTransactionChild).component)
-                is BaseViewModel.Child.AddBucketChild -> AddBucketView(component = (child.value.active.instance as BaseViewModel.Child.AddBucketChild).component)
+                is BaseViewModel.Child.EditBucketChild -> EditBucketView(component = (child.value.active.instance as BaseViewModel.Child.EditBucketChild).component)
                 is BaseViewModel.Child.TransactionDetailsChild -> TransactionDetailView(component = (child.value.active.instance as BaseViewModel.Child.TransactionDetailsChild).component)
             }
         }

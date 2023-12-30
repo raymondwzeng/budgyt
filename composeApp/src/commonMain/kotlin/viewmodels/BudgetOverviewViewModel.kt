@@ -33,7 +33,7 @@ interface BaseViewModel {
 
         class TransactionDetailsChild(val component: TransactionDetailsComponent) : Child()
 
-        class AddBucketChild(val component: AddBucketComponent) : Child()
+        class EditBucketChild(val component: EditBucketComponent) : Child()
     }
 }
 
@@ -82,8 +82,8 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
                 )
             )
 
-            is Config.AddBucket -> BaseViewModel.Child.AddBucketChild(
-                addBucketComponent(
+            is Config.AddEditBucket -> BaseViewModel.Child.EditBucketChild(
+                editBucketComponent(
                     componentContext
                 )
             )
@@ -132,7 +132,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             onAddTransactionSelected = { transaction ->
                 navigation.push(configuration = Config.Add(transaction))
             },
-            onAddBucketSelected = { navigation.push(configuration = Config.AddBucket) }
+            onAddBucketSelected = { navigation.push(configuration = Config.AddEditBucket) }
         )
     }
 
@@ -165,8 +165,8 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         )
     }
 
-    private fun addBucketComponent(componentContext: ComponentContext): AddBucketComponent {
-        return DefaultAddBucketComponent(
+    private fun editBucketComponent(componentContext: ComponentContext): EditBucketComponent {
+        return DefaultEditBucketComponent(
             componentContext = componentContext,
             database = store,
             onAddBucket = {
@@ -186,7 +186,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         data class Add(val item: Transaction?) : Config
 
 
-        data object AddBucket : Config
+        data object AddEditBucket : Config
     }
 }
 

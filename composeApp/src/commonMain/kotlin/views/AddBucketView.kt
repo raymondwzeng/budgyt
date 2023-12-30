@@ -15,12 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import models.BucketType
-import viewmodels.AddBucketComponent
+import viewmodels.EditBucketComponent
 import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
-fun AddBucketView(component: AddBucketComponent) {
+fun EditBucketView(component: EditBucketComponent) {
     val bucketName = remember { mutableStateOf("") }
     val bucketType = remember { mutableStateOf(BucketType.INFLOW) }
     val bucketTypeExpanded = remember { mutableStateOf(false) }
