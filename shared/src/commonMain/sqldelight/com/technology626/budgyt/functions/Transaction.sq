@@ -2,6 +2,15 @@ addTransaction:
     INSERT INTO BudgetTransaction(id, transaction_amount, transaction_note, transaction_date, bucket_id)
     VALUES (?, ?, ?, ?, ?);
 
+deleteTransaction:
+    DELETE FROM BudgetTransaction
+    WHERE id = ?;
+
+updateTransaction:
+    UPDATE BudgetTransaction
+    SET transaction_amount = ?, transaction_note = ?, transaction_date = ?, bucket_id = ?
+    WHERE id = ?;
+
 getAllTransactions:
     SELECT id, transaction_amount, transaction_note, transaction_date, bucket_id
     FROM BudgetTransaction;

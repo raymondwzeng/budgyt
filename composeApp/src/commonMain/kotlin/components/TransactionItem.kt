@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,10 +14,11 @@ import models.Transaction
 import java.text.NumberFormat
 import java.util.Locale
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun TransactionItem(modifier: Modifier = Modifier, transaction: Transaction) {
+fun TransactionItem(modifier: Modifier = Modifier, transaction: Transaction, onClick: () -> Unit) {
     val formatter = NumberFormat.getCurrencyInstance(Locale.US)
-    Card(modifier = modifier, elevation = 8.dp) {
+    Card(modifier = modifier, elevation = 8.dp, onClick = onClick) {
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             Column {
                 Text(text = transaction.transactionDate.toString())

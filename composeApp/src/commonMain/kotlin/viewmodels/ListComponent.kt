@@ -15,42 +15,29 @@ import models.Transaction
 import java.util.UUID
 
 interface ListComponent {
+    val model: MutableValue<List<Container>>
     fun onItemClicked(item: Bucket)
     fun onAddTransactionButtonClicked()
 
     fun navigateToAddBucketSelected()
-
-    fun transactionAdded(bucket: Bucket, transaction: Transaction)
 }
 
 class DefaultListComponent(
     componentContext: ComponentContext,
-    private val database: budgyt,
+    override val model: MutableValue<List<Container>>,
     private val onItemSelected: (item: Bucket) -> Unit,
-    private val onAddTransactionSelected: () -> Unit,
+    private val onAddTransactionSelected: (transaction: Transaction?) -> Unit,
     private val onAddBucketSelected: () -> Unit,
-    private val onTransactionAdded: () -> Unit
 ) : ListComponent, ComponentContext by componentContext {
     override fun onItemClicked(item: Bucket) {
         onItemSelected(item)
     }
 
     override fun onAddTransactionButtonClicked() {
-        onAddTransactionSelected()
+        onAddTransactionSelected(null)
     }
 
     override fun navigateToAddBucketSelected() {
         onAddBucketSelected()
-    }
-
-    override fun transactionAdded(bucket: Bucket, transaction: Transaction) {
-        database.transactionQueries.addTransaction(
-            id = transaction.id,
-            bucket_id = bucket.id,
-            transaction_date = transaction.transactionDate,
-            transaction_note = transaction.note,
-            transaction_amount = transaction.transactionAmount.toDouble()
-        )
-        onTransactionAdded()
     }
 }
