@@ -17,12 +17,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import components.BudgetCard
+import components.BucketCard
 import models.BucketType
 import viewmodels.ListComponent
 
 @Composable
-fun BucketsView(component: ListComponent) { //Really, this is a bucket of buckets.
+fun ContainerView(component: ListComponent) { //Really, this is a bucket of buckets.
     val bucketsState = component.model.subscribeAsState()
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         //This component should also hold the state for the inner internal items
@@ -50,7 +50,7 @@ fun BucketsView(component: ListComponent) { //Really, this is a bucket of bucket
                     }
                 } else {
                     container.buckets.forEach { bucket ->
-                        BudgetCard(
+                        BucketCard(
                             name = bucket.value.bucketName,
                             estimatedAmount = bucket.value.estimatedAmount,
                             actualAmount = bucket.value.transactions.sumOf { it.transactionAmount.toDouble() },

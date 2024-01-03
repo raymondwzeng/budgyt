@@ -21,7 +21,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun BudgetCard(
+fun BucketCard(
     name: String,
     actualAmount: Double,
     estimatedAmount: Float,
