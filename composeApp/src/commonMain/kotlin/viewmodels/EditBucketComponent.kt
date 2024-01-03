@@ -1,18 +1,28 @@
 package viewmodels
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.value.MutableValue
+import com.arkivanov.decompose.value.Value
 import com.technology626.budgyt.budgyt
 import models.Bucket
 import models.BucketType
 import java.util.UUID
 
 interface EditBucketComponent {
+    val bucket: Bucket?
     fun addBucket(bucketName: String, bucketType: BucketType, bucketEstimate: Float)
+
+    fun editBucket(
+        bucketId: UUID,
+        bucketName: String,
+        bucketType: BucketType,
+        bucketEstimate: Float
+    )
 }
 
 class DefaultEditBucketComponent(
     componentContext: ComponentContext,
-    val bucket: Bucket?,
+    override val bucket: Bucket?,
     private val database: budgyt,
     val onAddBucket: () -> Unit
 ) : EditBucketComponent, ComponentContext by componentContext {
@@ -22,6 +32,21 @@ class DefaultEditBucketComponent(
             bucket_name = bucketName,
             bucket_type = bucketType,
             bucket_estimate = bucketEstimate.toDouble()
+        )
+        onAddBucket()
+    }
+
+    override fun editBucket(
+        bucketId: UUID,
+        bucketName: String,
+        bucketType: BucketType,
+        bucketEstimate: Float
+    ) {
+        database.bucketQueries.editBucket(
+            bucket_name = bucketName,
+            bucket_type = bucketType,
+            bucket_estimate = bucketEstimate.toDouble(),
+            id = bucketId
         )
         onAddBucket()
     }

@@ -21,10 +21,10 @@ import java.util.Locale
 
 @Composable
 fun EditBucketView(component: EditBucketComponent) {
-    val bucketName = remember { mutableStateOf("") }
-    val bucketType = remember { mutableStateOf(BucketType.INFLOW) }
+    val bucketName = remember { mutableStateOf(component.bucket?.bucketName ?: "") }
+    val bucketType = remember { mutableStateOf(component.bucket?.bucketType ?: BucketType.INFLOW) }
     val bucketTypeExpanded = remember { mutableStateOf(false) }
-    val bucketEstimateAmount = remember { mutableStateOf(0f) }
+    val bucketEstimateAmount = remember { mutableStateOf(component.bucket?.estimatedAmount ?: 0f) }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = "Bucket Name", fontSize = 24.sp)
         TextField(
@@ -62,13 +62,32 @@ fun EditBucketView(component: EditBucketComponent) {
         Text(text = "Bucket Estimated Amount", fontSize = 24.sp)
         TextField(
             value = NumberFormat.getCurrencyInstance(Locale.US).format(bucketEstimateAmount.value),
-            onValueChange = { newAmount -> bucketEstimateAmount.value = newAmount.substring(1).toFloat()},
+            onValueChange = { newAmount ->
+                bucketEstimateAmount.value = newAmount.substring(1).toFloat()
+            },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
         )
-        Button(onClick = {
-            component.addBucket(bucketName = bucketName.value, bucketType = bucketType.value, bucketEstimate = bucketEstimateAmount.value)
-        }) {
-            Text(text = "Add New Bucket")
+        if(component.bucket == null) {
+            Button(onClick = {
+                component.addBucket(
+                    bucketName = bucketName.value,
+                    bucketType = bucketType.value,
+                    bucketEstimate = bucketEstimateAmount.value
+                )
+            }) {
+                Text(text = "Add New Bucket")
+            }
+        } else {
+            Button(onClick = {
+                component.editBucket(
+                    bucketName = bucketName.value,
+                    bucketType = bucketType.value,
+                    bucketEstimate = bucketEstimateAmount.value,
+                    bucketId = component.bucket!!.id //TODO: Code smell
+                )
+            }) {
+                Text(text = "Update Bucket")
+            }
         }
     }
 }

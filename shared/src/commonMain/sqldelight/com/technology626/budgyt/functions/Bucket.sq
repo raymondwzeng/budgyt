@@ -5,3 +5,8 @@ addBucket:
 getBuckets:
     SELECT id, bucket_name, bucket_type, bucket_estimate
     FROM Bucket;
+
+editBucket:
+    UPDATE Bucket
+    SET bucket_name = ?, bucket_type = ?, bucket_estimate = ?
+    WHERE id = ?;
