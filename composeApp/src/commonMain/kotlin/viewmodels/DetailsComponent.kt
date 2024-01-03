@@ -12,13 +12,16 @@ interface DetailsComponent {
 
     fun navigateToTransactionDetail(transaction: Transaction)
     fun onFinished()
+
+    fun navigateToEditBucket()
 }
 
 class DefaultDetailsComponent(
     componentContext: ComponentContext,
     item: Bucket,
     private val onFinished: () -> Unit,
-    private val onNavigateToTransactionDetails: (transaction: Transaction) -> Unit
+    private val onNavigateToTransactionDetails: (transaction: Transaction) -> Unit,
+    private val onNavigateToEditBucket: (bucket: Bucket) -> Unit
 ): DetailsComponent, ComponentContext by componentContext {
     override val model: Value<Bucket> = MutableValue(item)
     override fun navigateToTransactionDetail(transaction: Transaction) {
@@ -27,5 +30,9 @@ class DefaultDetailsComponent(
 
     override fun onFinished() {
         onFinished
+    }
+
+    override fun navigateToEditBucket() {
+        onNavigateToEditBucket(model.value)
     }
 }

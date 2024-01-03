@@ -84,7 +84,8 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
 
             is Config.AddEditBucket -> BaseViewModel.Child.EditBucketChild(
                 editBucketComponent(
-                    componentContext
+                    componentContext = componentContext,
+                    bucket = config.bucket
                 )
             )
 
@@ -132,7 +133,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             onAddTransactionSelected = { transaction ->
                 navigation.push(configuration = Config.Add(transaction))
             },
-            onAddBucketSelected = { navigation.push(configuration = Config.AddEditBucket) }
+            onAddBucketSelected = { navigation.push(configuration = Config.AddEditBucket(bucket = null)) }
         )
     }
 
@@ -161,13 +162,17 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             onFinished = navigation::pop,
             onNavigateToTransactionDetails = { transaction ->
                 navigation.push(configuration = Config.TransactionDetails(transaction))
+            },
+            onNavigateToEditBucket = { bucket ->
+                navigation.push(configuration = Config.AddEditBucket(bucket))
             }
         )
     }
 
-    private fun editBucketComponent(componentContext: ComponentContext): EditBucketComponent {
+    private fun editBucketComponent(bucket: Bucket?, componentContext: ComponentContext): EditBucketComponent {
         return DefaultEditBucketComponent(
             componentContext = componentContext,
+            bucket = bucket,
             database = store,
             onAddBucket = {
                 updateCache()
@@ -186,7 +191,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         data class Add(val item: Transaction?) : Config
 
 
-        data object AddEditBucket : Config
+        data class AddEditBucket(val bucket: Bucket?) : Config
     }
 }
 

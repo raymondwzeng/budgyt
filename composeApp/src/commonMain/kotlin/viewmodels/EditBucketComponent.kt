@@ -2,6 +2,7 @@ package viewmodels
 
 import com.arkivanov.decompose.ComponentContext
 import com.technology626.budgyt.budgyt
+import models.Bucket
 import models.BucketType
 import java.util.UUID
 
@@ -11,6 +12,7 @@ interface EditBucketComponent {
 
 class DefaultEditBucketComponent(
     componentContext: ComponentContext,
+    val bucket: Bucket?,
     private val database: budgyt,
     val onAddBucket: () -> Unit
 ) : EditBucketComponent, ComponentContext by componentContext {

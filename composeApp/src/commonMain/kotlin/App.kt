@@ -7,7 +7,7 @@ import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import viewmodels.BaseViewModel
 import views.EditBucketView
 import views.EditTransactionView
-import views.BucketsView
+import views.ContainerView
 import views.TransactionDetailView
 import views.TransactionsView
 
@@ -17,7 +17,7 @@ fun App(component: BaseViewModel) {
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize()) {
             when(child.value.active.instance) {
-                is BaseViewModel.Child.ListChild -> BucketsView(component = (child.value.active.instance as BaseViewModel.Child.ListChild).component)
+                is BaseViewModel.Child.ListChild -> ContainerView(component = (child.value.active.instance as BaseViewModel.Child.ListChild).component)
                 is BaseViewModel.Child.BucketDetailsChild -> TransactionsView(component = (child.value.active.instance as BaseViewModel.Child.BucketDetailsChild).component)
                 is BaseViewModel.Child.AddTransactionChild -> EditTransactionView(component = (child.value.active.instance as BaseViewModel.Child.AddTransactionChild).component)
                 is BaseViewModel.Child.EditBucketChild -> EditBucketView(component = (child.value.active.instance as BaseViewModel.Child.EditBucketChild).component)
