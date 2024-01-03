@@ -33,7 +33,7 @@ interface BaseViewModel {
 
         class TransactionDetailsChild(val component: TransactionDetailsComponent) : Child()
 
-        class AddBucketChild(val component: AddBucketComponent) : Child()
+        class EditBucketChild(val component: EditBucketComponent) : Child()
     }
 }
 
@@ -82,9 +82,10 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
                 )
             )
 
-            is Config.AddBucket -> BaseViewModel.Child.AddBucketChild(
-                addBucketComponent(
-                    componentContext
+            is Config.AddEditBucket -> BaseViewModel.Child.EditBucketChild(
+                editBucketComponent(
+                    componentContext = componentContext,
+                    bucket = config.bucket
                 )
             )
 
@@ -132,7 +133,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             onAddTransactionSelected = { transaction ->
                 navigation.push(configuration = Config.Add(transaction))
             },
-            onAddBucketSelected = { navigation.push(configuration = Config.AddBucket) }
+            onAddBucketSelected = { navigation.push(configuration = Config.AddEditBucket(bucket = null)) }
         )
     }
 
@@ -158,16 +159,27 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         return DefaultDetailsComponent(
             componentContext = componentContext,
             item = config.item,
-            onFinished = navigation::pop,
+            database = store,
+            onFinished = {
+                updateCache()
+                navigation.pop()
+            },
             onNavigateToTransactionDetails = { transaction ->
                 navigation.push(configuration = Config.TransactionDetails(transaction))
+            },
+            onNavigateToEditBucket = { bucket ->
+                navigation.push(configuration = Config.AddEditBucket(bucket))
             }
         )
     }
 
-    private fun addBucketComponent(componentContext: ComponentContext): AddBucketComponent {
-        return DefaultAddBucketComponent(
+    private fun editBucketComponent(
+        bucket: Bucket?,
+        componentContext: ComponentContext
+    ): EditBucketComponent {
+        return DefaultEditBucketComponent(
             componentContext = componentContext,
+            bucket = bucket,
             database = store,
             onAddBucket = {
                 updateCache()
@@ -186,7 +198,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         data class Add(val item: Transaction?) : Config
 
 
-        data object AddBucket : Config
+        data class AddEditBucket(val bucket: Bucket?) : Config
     }
 }
 
