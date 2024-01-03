@@ -159,7 +159,11 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         return DefaultDetailsComponent(
             componentContext = componentContext,
             item = config.item,
-            onFinished = navigation::pop,
+            database = store,
+            onFinished = {
+                updateCache()
+                navigation.pop()
+            },
             onNavigateToTransactionDetails = { transaction ->
                 navigation.push(configuration = Config.TransactionDetails(transaction))
             },
@@ -169,7 +173,10 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         )
     }
 
-    private fun editBucketComponent(bucket: Bucket?, componentContext: ComponentContext): EditBucketComponent {
+    private fun editBucketComponent(
+        bucket: Bucket?,
+        componentContext: ComponentContext
+    ): EditBucketComponent {
         return DefaultEditBucketComponent(
             componentContext = componentContext,
             bucket = bucket,

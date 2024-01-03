@@ -35,5 +35,8 @@ fun TransactionsView(component: DetailsComponent) {
         Button({ component.navigateToEditBucket() }) {
             Text("Edit Bucket")
         }
+        Button({ component.removeBucket() }) {
+            Text("Delete Bucket")
+        }
     }
 }

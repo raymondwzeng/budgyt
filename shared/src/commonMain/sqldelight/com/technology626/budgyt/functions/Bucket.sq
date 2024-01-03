@@ -10,3 +10,7 @@ editBucket:
     UPDATE Bucket
     SET bucket_name = ?, bucket_type = ?, bucket_estimate = ?
     WHERE id = ?;
+
+deleteBucket:
+    DELETE FROM Bucket
+    WHERE id = ?;
