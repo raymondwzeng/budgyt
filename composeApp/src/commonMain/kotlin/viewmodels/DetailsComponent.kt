@@ -6,10 +6,9 @@ import com.arkivanov.decompose.value.Value
 import com.technology626.budgyt.budgyt
 import models.Bucket
 import models.Transaction
-import java.util.UUID
 
 interface DetailsComponent {
-    val model: Value<Bucket>
+    val bucketModel: MutableValue<Bucket>
 
     fun navigateToTransactionDetail(transaction: Transaction)
 
@@ -19,23 +18,23 @@ interface DetailsComponent {
 
 class DefaultDetailsComponent(
     componentContext: ComponentContext,
-    item: Bucket,
+    item: MutableValue<Bucket>,
     val database: budgyt,
     private val onNavigateToTransactionDetails: (transaction: Transaction) -> Unit,
     private val onNavigateToEditBucket: (bucket: Bucket) -> Unit,
     val onFinished: () -> Unit
 ): DetailsComponent, ComponentContext by componentContext {
-    override val model: Value<Bucket> = MutableValue(item)
+    override val bucketModel: MutableValue<Bucket> = item
     override fun navigateToTransactionDetail(transaction: Transaction) {
         onNavigateToTransactionDetails(transaction)
     }
 
     override fun navigateToEditBucket() {
-        onNavigateToEditBucket(model.value)
+        onNavigateToEditBucket(bucketModel.value)
     }
 
     override fun removeBucket() {
-        database.bucketQueries.deleteBucket(model.value.id)
+        database.bucketQueries.deleteBucket(bucketModel.value.id)
         onFinished()
     }
 }

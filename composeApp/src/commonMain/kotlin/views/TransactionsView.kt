@@ -17,7 +17,7 @@ import viewmodels.DetailsComponent
 
 @Composable
 fun TransactionsView(component: DetailsComponent) {
-    val bucketState = component.model.subscribeAsState()
+    val bucketState = component.bucketModel.subscribeAsState()
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = bucketState.value.bucketName, fontSize = 32.sp)

@@ -3,7 +3,9 @@ package viewmodels
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
+import com.arkivanov.decompose.router.stack.active
 import com.arkivanov.decompose.router.stack.childStack
+import com.arkivanov.decompose.router.stack.items
 import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.popTo
 import com.arkivanov.decompose.router.stack.push
@@ -17,6 +19,7 @@ import models.Container
 import models.Transaction
 import models.toApplicationDataModel
 import models.toContainerList
+import java.util.UUID
 
 interface BaseViewModel {
     val callstack: Value<ChildStack<*, Child>>
@@ -106,6 +109,21 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         }
     }
 
+    private fun updateBucketInCallstack(bucketId: UUID) {
+        callstack.items.forEach { item ->
+            if (item.instance is BaseViewModel.Child.BucketDetailsChild) {
+                (item.instance as BaseViewModel.Child.BucketDetailsChild).component.bucketModel.update {
+                    (item.instance as BaseViewModel.Child.BucketDetailsChild).component.bucketModel.value.copy(
+                        transactions = store.transactionQueries.getTransactionsForBucketId(
+                            bucketId
+                        ).executeAsList()
+                            .map { budgetTransaction -> budgetTransaction.toApplicationDataModel() }
+                    )
+                }
+            }
+        }
+    }
+
     private fun transactionDetailsComponent(
         componentContext: ComponentContext,
         transaction: Transaction
@@ -113,9 +131,10 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         return DefaultTransactionDetailsComponent(
             componentContext = componentContext,
             database = store,
-            transactionModel = MutableValue(transaction), //TODO: This probably binds improperly
-            onDeleteTransaction = {
+            transactionModel = MutableValue(transaction),
+            onDeleteTransaction = { bucketId ->
                 updateCache()
+                updateBucketInCallstack(bucketId)
                 navigation.pop()
             },
             onNavigateToEditTransactionDetails = { selectedTransaction ->
@@ -145,9 +164,28 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             componentContext = componentContext,
             database = store,
             currentTransaction = transaction,
-            onTransactionUpdated = {
+            onTransactionUpdated = { transactionEditType, transactionId, bucketId ->
                 updateCache()
                 navigation.pop()
+                when (transactionEditType) {
+                    TransactionEditType.CREATE -> {}
+                    TransactionEditType.UPDATE -> {
+                        val top = callstack.active.instance
+                        if (top is BaseViewModel.Child.TransactionDetailsChild) {
+                            top.component.transactionModel.update {
+                                store.transactionQueries.getTransactionById(
+                                    transactionId
+                                ).executeAsOne().toApplicationDataModel()
+                            }
+                        }
+                        updateBucketInCallstack(bucketId)
+                    }
+
+                    TransactionEditType.DELETE -> {
+                        updateBucketInCallstack(bucketId = bucketId)
+                        navigation.pop()
+                    }
+                }
             }
         )
     }
@@ -158,7 +196,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     ): DetailsComponent {
         return DefaultDetailsComponent(
             componentContext = componentContext,
-            item = config.item,
+            item = MutableValue(config.item),
             database = store,
             onFinished = {
                 updateCache()
