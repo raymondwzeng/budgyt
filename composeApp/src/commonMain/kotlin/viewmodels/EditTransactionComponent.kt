@@ -7,6 +7,12 @@ import models.Transaction
 import models.toApplicationDataModel
 import java.util.UUID
 
+enum class TransactionEditType {
+    CREATE,
+    UPDATE,
+    DELETE
+}
+
 interface EditTransactionComponent {
     val currentTransaction: Transaction?
     val listBuckets: List<Bucket>
@@ -22,7 +28,7 @@ class DefaultEditTransactionComponent(
     componentContext: ComponentContext,
     override val currentTransaction: Transaction?,
     private val database: budgyt,
-    private val onTransactionUpdated: () -> Unit,
+    private val onTransactionUpdated: (editType: TransactionEditType, transactionId: UUID, bucketId: UUID) -> Unit,
 ) : EditTransactionComponent,
     ComponentContext by componentContext {
 
@@ -38,7 +44,7 @@ class DefaultEditTransactionComponent(
             transaction_note = transaction.note,
             transaction_amount = transaction.transactionAmount.toDouble()
         )
-        onTransactionUpdated()
+        onTransactionUpdated(TransactionEditType.CREATE, transaction.id, bucket.id)
     }
 
     override fun updateTransaction(
@@ -53,11 +59,12 @@ class DefaultEditTransactionComponent(
             bucket_id = bucket.id,
             id = oldTransaction.id
         )
-        onTransactionUpdated()
+        onTransactionUpdated(TransactionEditType.UPDATE, newTransaction.id, bucket.id)
     }
 
     override fun deleteTransaction(transactionId: UUID) {
+        val bucketId = database.transactionQueries.getTransactionById(transactionId).executeAsOne().bucket_id
         database.transactionQueries.deleteTransaction(id = transactionId)
-        onTransactionUpdated()
+        onTransactionUpdated(TransactionEditType.DELETE, transactionId, bucketId)
     }
 }

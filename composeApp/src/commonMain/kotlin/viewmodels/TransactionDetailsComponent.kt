@@ -8,7 +8,7 @@ import models.Transaction
 import java.util.UUID
 
 interface TransactionDetailsComponent {
-    val transactionModel: Value<Transaction>
+    val transactionModel: MutableValue<Transaction>
     fun navigateToEditTransactionDetails(transaction: Transaction)
 
     fun deleteTransaction(transactionId: UUID)
@@ -17,20 +17,21 @@ interface TransactionDetailsComponent {
 class DefaultTransactionDetailsComponent(
     componentContext: ComponentContext,
     private val database: budgyt,
-    transactionModel: Value<Transaction>,
+    transactionModel: MutableValue<Transaction>,
     private val onNavigateToEditTransactionDetails: (transaction: Transaction) -> Unit,
-    private val onDeleteTransaction: () -> Unit
+    private val onDeleteTransaction: (bucketId: UUID) -> Unit
 ) :
     TransactionDetailsComponent, ComponentContext by componentContext {
 
-    override val transactionModel: Value<Transaction> = MutableValue(transactionModel.value)
+    override val transactionModel: MutableValue<Transaction> = transactionModel
     override fun navigateToEditTransactionDetails(transaction: Transaction) {
         onNavigateToEditTransactionDetails(transaction)
     }
 
     override fun deleteTransaction(transactionId: UUID) {
+        val bucketId = database.transactionQueries.getTransactionById(transactionId).executeAsOne().bucket_id
         database.transactionQueries.deleteTransaction(transactionId)
-        onDeleteTransaction()
+        onDeleteTransaction(bucketId)
     }
 
 }

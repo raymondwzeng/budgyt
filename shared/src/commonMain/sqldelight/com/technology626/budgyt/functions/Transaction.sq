@@ -19,3 +19,8 @@ getTransactionsForBucketId:
     SELECT id, transaction_amount, transaction_note, transaction_date, bucket_id
     FROM BudgetTransaction
     WHERE bucket_id = ?;
+
+getTransactionById:
+    SELECT id, transaction_amount, transaction_note, transaction_date, bucket_id
+    FROM BudgetTransaction
+    WHERE id = ?;
