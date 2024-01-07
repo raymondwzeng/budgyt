@@ -219,9 +219,14 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             componentContext = componentContext,
             bucket = bucket,
             database = store,
-            onAddBucket = {
+            onAddBucket = { bucketId ->
                 updateCache()
                 navigation.pop()
+                if(callstack.active.instance is BaseViewModel.Child.BucketDetailsChild) {
+                    (callstack.active.instance as BaseViewModel.Child.BucketDetailsChild).component.bucketModel.update {
+                        store.bucketQueries.getBucketById(bucketId).executeAsOne().toApplicationDataModel(budgyt = store)
+                    }
+                }
             }
         )
     }
