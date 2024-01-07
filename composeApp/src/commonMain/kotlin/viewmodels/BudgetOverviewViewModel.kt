@@ -13,6 +13,9 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
 import com.technology626.budgyt.budgyt
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import kotlinx.serialization.Serializable
 import models.Bucket
 import models.Container
@@ -23,7 +26,7 @@ import java.util.UUID
 
 interface BaseViewModel {
     val callstack: Value<ChildStack<*, Child>>
-    val cache: Value<List<Container>>
+    val cache: Value<Array<List<Container>>>
     val store: budgyt
 
     fun onBackClicked(toIndex: Int)
@@ -44,14 +47,17 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
 
-    override val cache = MutableValue(emptyList<Container>())
+    val currentMonth = Clock.System.todayIn(TimeZone.currentSystemDefault()).month
+    override val cache = MutableValue(arrayOf(emptyList<Container>(), emptyList(), emptyList()))
 
     override val store by lazy { database }
 
     init {
         cache.update {
-            store.bucketQueries.getBuckets().executeAsList()
+            val clone = cache.value.clone()
+            clone[1] = store.bucketQueries.getBuckets().executeAsList()
                 .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }.toContainerList()
+            clone
         }
     }
 
@@ -103,9 +109,11 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
 
     private fun updateCache() {
         cache.update {
-            store.bucketQueries.getBuckets().executeAsList()
+            val clone = cache.value.clone()
+            clone[1] = store.bucketQueries.getBuckets().executeAsList()
                 .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }
                 .toContainerList()
+            clone
         }
     }
 
@@ -145,7 +153,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
 
     private fun listComponent(componentContext: ComponentContext): ListComponent {
         return DefaultListComponent(componentContext = componentContext,
-            model = cache,
+            model = MutableValue(cache.value[1]),
             onItemSelected = { bucket ->
                 navigation.push(configuration = Config.Details(bucket))
             },
