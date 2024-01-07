@@ -12,9 +12,6 @@ data class Container(
 )
 
 fun List<Bucket>.toContainerList(): List<Container> {
-    if (this.isEmpty()) {
-        throw Exception("Unable to construct a container using this function from an empty list of buckets!")
-    }
     return this.groupBy { bucket ->
         bucket.bucketType
     }.map { entry ->
