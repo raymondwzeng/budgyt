@@ -164,15 +164,21 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     }
 
     private fun listComponent(componentContext: ComponentContext): ListComponent {
-        return DefaultListComponent(componentContext = componentContext,
-            model = MutableValue(cache.value[1]),
+        return DefaultListComponent(
+            componentContext = componentContext,
+            model = MutableValue(cache.value),
+            currentDate = currentDate,
             onItemSelected = { bucket ->
                 navigation.push(configuration = Config.Details(bucket))
             },
             onAddTransactionSelected = { transaction ->
                 navigation.push(configuration = Config.Add(transaction))
             },
-            onAddBucketSelected = { navigation.push(configuration = Config.AddEditBucket(bucket = null)) }
+            onAddBucketSelected = { navigation.push(configuration = Config.AddEditBucket(bucket = null)) },
+            onMonthChanged = { newMonth ->
+                println("New month: $newMonth")
+                currentDate.update { newMonth }
+            }
         )
     }
 
