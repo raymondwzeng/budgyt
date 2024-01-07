@@ -24,16 +24,17 @@ class DefaultEditBucketComponent(
     componentContext: ComponentContext,
     override val bucket: Bucket?,
     private val database: budgyt,
-    val onAddBucket: () -> Unit
+    val onAddBucket: (bucketId: UUID) -> Unit
 ) : EditBucketComponent, ComponentContext by componentContext {
     override fun addBucket(bucketName: String, bucketType: BucketType, bucketEstimate: Float) {
+        val newBucketId = UUID.randomUUID()
         database.bucketQueries.addBucket(
-            id = UUID.randomUUID(),
+            id = newBucketId,
             bucket_name = bucketName,
             bucket_type = bucketType,
             bucket_estimate = bucketEstimate.toDouble()
         )
-        onAddBucket()
+        onAddBucket(newBucketId)
     }
 
     override fun editBucket(
@@ -48,6 +49,6 @@ class DefaultEditBucketComponent(
             bucket_estimate = bucketEstimate.toDouble(),
             id = bucketId
         )
-        onAddBucket()
+        onAddBucket(bucketId)
     }
 }
