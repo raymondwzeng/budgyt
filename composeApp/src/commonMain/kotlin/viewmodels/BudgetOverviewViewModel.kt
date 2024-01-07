@@ -14,13 +14,18 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
 import com.technology626.budgyt.budgyt
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
 import kotlinx.datetime.todayIn
 import kotlinx.serialization.Serializable
 import models.Bucket
 import models.Container
 import models.Transaction
 import models.toApplicationDataModel
+import models.toApplicationDataModelOfMonth
 import models.toContainerList
 import java.util.UUID
 
@@ -47,18 +52,13 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
 
-    val currentMonth = Clock.System.todayIn(TimeZone.currentSystemDefault()).month
+    private val currentDate = MutableValue(Clock.System.todayIn(TimeZone.currentSystemDefault()))
     override val cache = MutableValue(arrayOf(emptyList<Container>(), emptyList(), emptyList()))
 
     override val store by lazy { database }
 
     init {
-        cache.update {
-            val clone = cache.value.clone()
-            clone[1] = store.bucketQueries.getBuckets().executeAsList()
-                .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }.toContainerList()
-            clone
-        }
+        updateCache()
     }
 
     override val callstack =
@@ -111,8 +111,20 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         cache.update {
             val clone = cache.value.clone()
             clone[1] = store.bucketQueries.getBuckets().executeAsList()
-                .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }
+                .map { bucket ->
+                    bucket.toApplicationDataModelOfMonth(
+                        budgyt = store,
+                        currentDate = currentDate.value
+                    )
+                }
                 .toContainerList()
+            clone[0] = store.bucketQueries.getBuckets().executeAsList()
+                .map { bucket ->
+                    bucket.toApplicationDataModelOfMonth(
+                        budgyt = store,
+                        currentDate = currentDate.value.minus(1, DateTimeUnit.MONTH)
+                    )
+                }.toContainerList()
             clone
         }
     }
@@ -230,9 +242,10 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             onAddBucket = { bucketId ->
                 updateCache()
                 navigation.pop()
-                if(callstack.active.instance is BaseViewModel.Child.BucketDetailsChild) {
+                if (callstack.active.instance is BaseViewModel.Child.BucketDetailsChild) {
                     (callstack.active.instance as BaseViewModel.Child.BucketDetailsChild).component.bucketModel.update {
-                        store.bucketQueries.getBucketById(bucketId).executeAsOne().toApplicationDataModel(budgyt = store)
+                        store.bucketQueries.getBucketById(bucketId).executeAsOne()
+                            .toApplicationDataModel(budgyt = store)
                     }
                 }
             }

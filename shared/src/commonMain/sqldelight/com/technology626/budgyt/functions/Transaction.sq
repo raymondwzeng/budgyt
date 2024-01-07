@@ -25,7 +25,7 @@ getTransactionsForBucketForRange:
     FROM BudgetTransaction
     WHERE bucket_id = ?
     AND transaction_date >= ?
-    AND transaction_date < ?;
+    AND transaction_date <= ?;
 
 getTransactionById:
     SELECT id, transaction_amount, transaction_note, transaction_date, bucket_id
