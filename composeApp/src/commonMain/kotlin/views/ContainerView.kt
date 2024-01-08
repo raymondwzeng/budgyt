@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import components.BucketCard
+import components.InflowOutflowComponent
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
@@ -115,6 +116,11 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
         if (bucketsState.value.isEmpty()) {
             Text(text = "No transactions were made within this month.")
         }
+        InflowOutflowComponent(
+            inflowContainers = bucketsState.value.filter { container -> container.containerType == BucketType.INFLOW },
+            outflowContainers = bucketsState.value.filter { container -> container.containerType == BucketType.OUTFLOW },
+            fundContainers = bucketsState.value.filter { container -> container.containerType == BucketType.FUND },
+            )
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             //This component should also hold the state for the inner internal items
             LazyColumn {

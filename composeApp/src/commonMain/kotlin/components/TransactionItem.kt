@@ -1,5 +1,6 @@
 package components
 
+import GLOBAL_FORMATTER
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,7 +18,6 @@ import java.util.Locale
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TransactionItem(modifier: Modifier = Modifier, transaction: Transaction, onClick: () -> Unit) {
-    val formatter = NumberFormat.getCurrencyInstance(Locale.US)
     Card(modifier = modifier, elevation = 8.dp, onClick = onClick) {
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             Column {
@@ -25,7 +25,7 @@ fun TransactionItem(modifier: Modifier = Modifier, transaction: Transaction, onC
                 Text(text = transaction.note)
             }
             Column {
-                Text(text = formatter.format(transaction.transactionAmount), fontSize = 18.sp)
+                Text(text = GLOBAL_FORMATTER.format(transaction.transactionAmount), fontSize = 18.sp)
             }
         }
     }
