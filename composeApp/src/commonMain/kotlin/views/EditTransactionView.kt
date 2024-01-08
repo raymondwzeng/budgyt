@@ -51,17 +51,6 @@ fun EditTransactionView(component: EditTransactionComponent) {
     val currentBucket =
         remember { mutableStateOf(component.listBuckets.find { bucket -> bucket.id == component.currentTransaction?.bucketId }) }
     val expanded = remember { mutableStateOf(false) }
-    val deletionConfirmationState = remember { mutableStateOf(false) }
-    if (deletionConfirmationState.value) {
-        DeletionConfirmationDialog(text = TRANSACTION_DELETION_DIALOG, onConfirm = {
-            component.currentTransaction?.let { currentTransaction ->
-                component.deleteTransaction(currentTransaction.id)
-            }
-            deletionConfirmationState.value = false
-        }, onDismissRequest = {
-            deletionConfirmationState.value = false
-        })
-    }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         //TODO: Component-ize
         Text(text = "Bucket", fontSize = 24.sp)
@@ -107,11 +96,6 @@ fun EditTransactionView(component: EditTransactionComponent) {
         DatePicker(state = transactionDate)
         val transaction = component.currentTransaction
         if (transaction != null) {
-            Button(onClick = {
-                deletionConfirmationState.value = !deletionConfirmationState.value
-            }) {
-                Text(text = "Delete Transaction")
-            }
             Button(onClick = {
                 val selectedBucket = currentBucket.value
                 if (selectedBucket != null) {
