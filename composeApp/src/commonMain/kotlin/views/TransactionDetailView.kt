@@ -45,14 +45,14 @@ fun TransactionDetailView(component: TransactionDetailsComponent) {
             Text(text = transaction.value.note)
         }
         Button(onClick = {
-            component.deleteTransaction(transactionId = transaction.value.id)
-        }) {
-            Text(text = "Delete Transaction")
-        }
-        Button(onClick = {
             component.navigateToEditTransactionDetails(transaction.value)
         }) {
             Text(text = "Update Transaction")
+        }
+        Button(onClick = {
+            component.deleteTransaction(transactionId = transaction.value.id)
+        }) {
+            Text(text = "Delete Transaction")
         }
     }
 }

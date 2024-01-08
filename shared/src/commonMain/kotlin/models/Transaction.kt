@@ -12,7 +12,9 @@ data class Transaction(
     val id: UUID,
     val transactionAmount: Float,
     val note: String,
-    val transactionDate: LocalDate
+    val transactionDate: LocalDate,
+    @Serializable(with = JavaUUIDSerializer::class)
+    val bucketId: UUID?
 )
 
 fun BudgetTransaction.toApplicationDataModel(): Transaction {
@@ -20,6 +22,7 @@ fun BudgetTransaction.toApplicationDataModel(): Transaction {
         id = id,
         transactionAmount = transaction_amount.toFloat(),
         note = transaction_note,
-        transactionDate = transaction_date
+        transactionDate = transaction_date,
+        bucketId = bucket_id
     )
 }

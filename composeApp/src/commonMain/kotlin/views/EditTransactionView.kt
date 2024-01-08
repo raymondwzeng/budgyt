@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -40,12 +41,12 @@ fun EditTransactionView(component: EditTransactionComponent) {
     val transactionDate =
         rememberDatePickerState(
             initialSelectedDateMillis = if (component.currentTransaction != null) {
-                component.currentTransaction?.transactionDate?.atStartOfDayIn(TimeZone.UTC)?.toEpochMilliseconds()
+                component.currentTransaction?.transactionDate?.atStartOfDayIn(TimeZone.currentSystemDefault())?.toEpochMilliseconds()
             } else {
                 System.currentTimeMillis()
             }, initialDisplayMode = DisplayMode.Input
         )
-    val currentBucket = remember { mutableStateOf<Bucket?>(null) }
+    val currentBucket = remember { mutableStateOf(component.listBuckets.find { bucket -> bucket.id == component.currentTransaction?.bucketId }) }
     val expanded = remember { mutableStateOf(false) }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         //TODO: Component-ize
@@ -103,11 +104,11 @@ fun EditTransactionView(component: EditTransactionComponent) {
                 val selectedBucket = currentBucket.value
                 if (selectedBucket != null) {
                     component.updateTransaction(
-                        selectedBucket, transaction, transaction.copy(
+                        selectedBucket.id, transaction, transaction.copy(
                             transactionAmount = transactionAmount.value,
                             transactionDate = Instant.fromEpochMilliseconds(transactionDate.selectedDateMillis ?: 0)
                                 .toLocalDateTime(
-                                    TimeZone.UTC
+                                    TimeZone.currentSystemDefault()
                                 ).date,
                             note = transactionNote.value
                         )
@@ -121,17 +122,11 @@ fun EditTransactionView(component: EditTransactionComponent) {
                 val onClickValue = currentBucket.value
                 if (onClickValue != null) {
                     component.createTransaction(
-                        bucket = onClickValue,
-                        transaction = Transaction(
-                            id = UUID.randomUUID(),
-                            transactionAmount = transactionAmount.value,
-                            note = transactionNote.value,
-                            transactionDate = Instant.fromEpochMilliseconds(
-                                transactionDate.selectedDateMillis ?: 0
-                            ).toLocalDateTime(
-                                TimeZone.UTC
-                            ).date
-                        )
+                        bucketId = onClickValue.id,
+                        transactionAmount = transactionAmount.value,
+                        transactionDate = Instant.fromEpochMilliseconds(transactionDate.selectedDateMillis ?: 0).toLocalDateTime(
+                            TimeZone.currentSystemDefault()).date,
+                        transactionNote = transactionNote.value
                     )
                 }
             }) {
