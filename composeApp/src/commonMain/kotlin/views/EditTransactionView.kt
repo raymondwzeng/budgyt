@@ -1,5 +1,6 @@
 package views
 
+import GLOBAL_FORMATTER
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
@@ -35,7 +36,6 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTransactionView(component: EditTransactionComponent) {
-    val formatter = NumberFormat.getCurrencyInstance(Locale.US)
     val transactionAmount =
         remember { mutableStateOf(component.currentTransaction?.transactionAmount ?: 0f) }
     val transactionNote = remember { mutableStateOf(component.currentTransaction?.note ?: "") }
@@ -81,7 +81,7 @@ fun EditTransactionView(component: EditTransactionComponent) {
         }
         Text(text = "Transaction Amount", fontSize = 24.sp)
         TextField(
-            value = formatter.format(transactionAmount.value),
+            value = GLOBAL_FORMATTER.format(transactionAmount.value),
             onValueChange = { newAmount ->
                 transactionAmount.value = newAmount.substring(1).toFloat()
             },

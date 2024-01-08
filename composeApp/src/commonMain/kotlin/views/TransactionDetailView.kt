@@ -1,5 +1,6 @@
 package views
 
+import GLOBAL_FORMATTER
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -35,7 +36,6 @@ public const val TRANSACTION_DELETION_DIALOG = "Are you sure that you want to de
 fun TransactionDetailView(component: TransactionDetailsComponent) {
     val deletionConfirmationState = remember { mutableStateOf(false) }
     val transaction = component.transactionModel.subscribeAsState()
-    val formatter = NumberFormat.getCurrencyInstance(Locale.US)
     if(deletionConfirmationState.value) {
         DeletionConfirmationDialog(text = TRANSACTION_DELETION_DIALOG, onConfirm = {
             component.deleteTransaction(transactionId = transaction.value.id)
@@ -50,7 +50,7 @@ fun TransactionDetailView(component: TransactionDetailsComponent) {
         }
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(text = "Transaction Amount:", fontWeight = FontWeight.Bold)
-            Text(text = formatter.format(transaction.value.transactionAmount))
+            Text(text = GLOBAL_FORMATTER.format(transaction.value.transactionAmount))
         }
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(text = "Transaction Note:", fontWeight = FontWeight.Bold)
