@@ -1,9 +1,10 @@
 import java.util.UUID;
 import models.BucketType;
+import java.math.BigDecimal;
 
 CREATE TABLE Bucket(
     id TEXT AS UUID PRIMARY KEY NOT NULL,
     bucket_name TEXT NOT NULL,
     bucket_type TEXT AS BucketType NOT NULL,
-    bucket_estimate REAL NOT NULL DEFAULT 0
+    bucket_estimate REAL AS BigDecimal NOT NULL DEFAULT 0
 );
