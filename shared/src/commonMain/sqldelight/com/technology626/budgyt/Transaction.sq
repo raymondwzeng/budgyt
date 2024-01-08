@@ -7,5 +7,5 @@ CREATE TABLE BudgetTransaction (
     transaction_note TEXT NOT NULL DEFAULT '',
     transaction_date TEXT AS LocalDate NOT NULL,
     bucket_id TEXT AS UUID NOT NULL,
-    FOREIGN KEY (bucket_id) REFERENCES Bucket(id)
+    FOREIGN KEY (bucket_id) REFERENCES Bucket(id) ON DELETE CASCADE
 );
