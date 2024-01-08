@@ -13,11 +13,20 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
 import com.technology626.budgyt.budgyt
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.plus
+import kotlinx.datetime.todayIn
 import kotlinx.serialization.Serializable
 import models.Bucket
 import models.Container
 import models.Transaction
 import models.toApplicationDataModel
+import models.toApplicationDataModelOfMonth
 import models.toContainerList
 import java.util.UUID
 
@@ -44,15 +53,13 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
 
+    private val currentDate = MutableValue(Clock.System.todayIn(TimeZone.currentSystemDefault()))
     override val cache = MutableValue(emptyList<Container>())
 
     override val store by lazy { database }
 
     init {
-        cache.update {
-            store.bucketQueries.getBuckets().executeAsList()
-                .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }.toContainerList()
-        }
+        updateCache()
     }
 
     override val callstack =
@@ -104,8 +111,12 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     private fun updateCache() {
         cache.update {
             store.bucketQueries.getBuckets().executeAsList()
-                .map { bucket -> bucket.toApplicationDataModel(budgyt = store) }
-                .toContainerList()
+                .map { bucket ->
+                    bucket.toApplicationDataModelOfMonth(
+                        budgyt = store,
+                        currentDate = currentDate.value
+                    )
+                }.toContainerList()
         }
     }
 
@@ -144,15 +155,23 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     }
 
     private fun listComponent(componentContext: ComponentContext): ListComponent {
-        return DefaultListComponent(componentContext = componentContext,
+        return DefaultListComponent(
+            componentContext = componentContext,
             model = cache,
+            currentDate = currentDate,
             onItemSelected = { bucket ->
                 navigation.push(configuration = Config.Details(bucket))
             },
             onAddTransactionSelected = { transaction ->
                 navigation.push(configuration = Config.Add(transaction))
             },
-            onAddBucketSelected = { navigation.push(configuration = Config.AddEditBucket(bucket = null)) }
+            onAddBucketSelected = { navigation.push(configuration = Config.AddEditBucket(bucket = null)) },
+            onUpdateCurrentDate = { month, year ->
+                currentDate.update {
+                    LocalDate(year = year, monthNumber = month,  dayOfMonth = 1)
+                }
+                updateCache()
+            }
         )
     }
 
@@ -222,9 +241,10 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             onAddBucket = { bucketId ->
                 updateCache()
                 navigation.pop()
-                if(callstack.active.instance is BaseViewModel.Child.BucketDetailsChild) {
+                if (callstack.active.instance is BaseViewModel.Child.BucketDetailsChild) {
                     (callstack.active.instance as BaseViewModel.Child.BucketDetailsChild).component.bucketModel.update {
-                        store.bucketQueries.getBucketById(bucketId).executeAsOne().toApplicationDataModel(budgyt = store)
+                        store.bucketQueries.getBucketById(bucketId).executeAsOne()
+                            .toApplicationDataModel(budgyt = store)
                     }
                 }
             }
