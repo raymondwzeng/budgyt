@@ -20,24 +20,25 @@ import models.Transaction
 import java.util.UUID
 
 interface ListComponent {
-    val model: MutableValue<Array<List<Container>>>
+    val model: MutableValue<List<Container>>
     val currentDate: MutableValue<LocalDate>
     fun onItemClicked(item: Bucket)
     fun onAddTransactionButtonClicked()
 
     fun navigateToAddBucketSelected()
 
-    fun changeMonth(oldPageNumber: Int, newPageNumber: Int)
+    fun updateCurrentDate(month: Int, year: Int)
+
 }
 
 class DefaultListComponent(
     componentContext: ComponentContext,
     override val currentDate: MutableValue<LocalDate>,
-    override val model: MutableValue<Array<List<Container>>>,
+    override val model: MutableValue<List<Container>>,
     private val onItemSelected: (item: Bucket) -> Unit,
     private val onAddTransactionSelected: (transaction: Transaction?) -> Unit,
     private val onAddBucketSelected: () -> Unit,
-    private val onMonthChanged: (LocalDate) -> Unit
+    private val onUpdateCurrentDate: (month: Int, year: Int) -> Unit
 ) : ListComponent, ComponentContext by componentContext {
     override fun onItemClicked(item: Bucket) {
         onItemSelected(item)
@@ -51,12 +52,7 @@ class DefaultListComponent(
         onAddBucketSelected()
     }
 
-    override fun changeMonth(oldPageNumber: Int, newPageNumber: Int) {
-        val newMonth: LocalDate = when(newPageNumber - oldPageNumber) {
-            1 -> currentDate.value.plus(1, DateTimeUnit.MONTH)
-            -1 -> currentDate.value.minus(1, DateTimeUnit.MONTH)
-            else -> currentDate.value
-        }
-        onMonthChanged(newMonth)
+    override fun updateCurrentDate(month: Int, year: Int) {
+        onUpdateCurrentDate(month, year)
     }
 }
