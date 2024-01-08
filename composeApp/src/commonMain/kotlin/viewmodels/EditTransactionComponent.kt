@@ -2,6 +2,7 @@ package viewmodels
 
 import com.arkivanov.decompose.ComponentContext
 import com.technology626.budgyt.budgyt
+import kotlinx.datetime.LocalDate
 import models.Bucket
 import models.Transaction
 import models.toApplicationDataModel
@@ -16,9 +17,14 @@ enum class TransactionEditType {
 interface EditTransactionComponent {
     val currentTransaction: Transaction?
     val listBuckets: List<Bucket>
-    fun createTransaction(bucket: Bucket, transaction: Transaction)
+    fun createTransaction(
+        bucketId: UUID,
+        transactionAmount: Float,
+        transactionNote: String,
+        transactionDate: LocalDate
+    )
 
-    fun updateTransaction(bucket: Bucket, oldTransaction: Transaction, newTransaction: Transaction)
+    fun updateTransaction(bucketId: UUID, oldTransaction: Transaction, newTransaction: Transaction)
 
     fun deleteTransaction(transactionId: UUID)
 
@@ -36,34 +42,44 @@ class DefaultEditTransactionComponent(
         get() = database.bucketQueries.getBuckets().executeAsList()
             .map { bucket -> bucket.toApplicationDataModel() }
 
-    override fun createTransaction(bucket: Bucket, transaction: Transaction) {
+    override fun createTransaction(
+        bucketId: UUID,
+        transactionAmount: Float,
+        transactionNote: String,
+        transactionDate: LocalDate
+    ) {
+        val transactionId = UUID.randomUUID()
         database.transactionQueries.addTransaction(
-            id = transaction.id,
-            bucket_id = bucket.id,
-            transaction_date = transaction.transactionDate,
-            transaction_note = transaction.note,
-            transaction_amount = transaction.transactionAmount.toDouble()
+            id = transactionId,
+            bucket_id = bucketId,
+            transaction_date = transactionDate,
+            transaction_note = transactionNote,
+            transaction_amount = transactionAmount.toDouble()
         )
-        onTransactionUpdated(TransactionEditType.CREATE, transaction.id, bucket.id)
+        onTransactionUpdated(TransactionEditType.CREATE, transactionId, bucketId)
     }
 
     override fun updateTransaction(
-        bucket: Bucket,
+        bucketId: UUID,
         oldTransaction: Transaction,
         newTransaction: Transaction
     ) {
+        if (oldTransaction.id != newTransaction.id) {
+            throw Exception("ERROR: Old transaction id is not the same as new transaction id! This is unexpected behavior.")
+        }
         database.transactionQueries.updateTransaction(
             transaction_amount = newTransaction.transactionAmount.toDouble(),
             transaction_note = newTransaction.note,
             transaction_date = newTransaction.transactionDate,
-            bucket_id = bucket.id,
+            bucket_id = bucketId,
             id = oldTransaction.id
         )
-        onTransactionUpdated(TransactionEditType.UPDATE, newTransaction.id, bucket.id)
+        onTransactionUpdated(TransactionEditType.UPDATE, newTransaction.id, bucketId)
     }
 
     override fun deleteTransaction(transactionId: UUID) {
-        val bucketId = database.transactionQueries.getTransactionById(transactionId).executeAsOne().bucket_id
+        val bucketId =
+            database.transactionQueries.getTransactionById(transactionId).executeAsOne().bucket_id
         database.transactionQueries.deleteTransaction(id = transactionId)
         onTransactionUpdated(TransactionEditType.DELETE, transactionId, bucketId)
     }
