@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
+import components.TransactionInputComponent
 import models.BucketType
 import viewmodels.EditBucketComponent
 import java.text.NumberFormat
@@ -60,13 +61,9 @@ fun EditBucketView(component: EditBucketComponent) {
             }
         }
         Text(text = "Bucket Estimated Amount", fontSize = 24.sp)
-        TextField(
-            value = NumberFormat.getCurrencyInstance(Locale.US).format(bucketEstimateAmount.value),
-            onValueChange = { newAmount ->
-                bucketEstimateAmount.value = newAmount.substring(1).toFloat()
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-        )
+        TransactionInputComponent(value = bucketEstimateAmount.value, onInputChange = { newAmount ->
+            bucketEstimateAmount.value = newAmount
+        })
         if(component.bucket == null) {
             Button(onClick = {
                 component.addBucket(

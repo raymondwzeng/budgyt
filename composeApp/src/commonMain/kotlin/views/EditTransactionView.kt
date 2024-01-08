@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import components.DeletionConfirmationDialog
+import components.TransactionInputComponent
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -80,13 +81,9 @@ fun EditTransactionView(component: EditTransactionComponent) {
             }
         }
         Text(text = "Transaction Amount", fontSize = 24.sp)
-        TextField(
-            value = GLOBAL_FORMATTER.format(transactionAmount.value),
-            onValueChange = { newAmount ->
-                transactionAmount.value = newAmount.substring(1).toFloat()
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-        )
+        TransactionInputComponent(value = transactionAmount.value, onInputChange = { newValue ->
+            transactionAmount.value = newValue
+        })
         Text(text = "Transaction Note", fontSize = 24.sp)
         TextField(
             value = transactionNote.value,
