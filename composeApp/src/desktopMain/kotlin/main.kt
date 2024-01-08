@@ -39,6 +39,6 @@ fun main() = application {
     }
 
     Window(onCloseRequest = ::exitApplication) {
-        App(root)
+        App(DeviceType.DESKTOP, root)
     }
 }

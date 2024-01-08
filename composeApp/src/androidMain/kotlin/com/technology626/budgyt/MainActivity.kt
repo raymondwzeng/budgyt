@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
 
 
         setContent {
-            App(root)
+            App(DeviceType.ANDROID, root)
         }
     }
 }
