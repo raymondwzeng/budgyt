@@ -159,12 +159,12 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
                     }
                 }
             }
-        }
-        Button(onClick = { component.onAddTransactionButtonClicked() }, content = {
+            Button(onClick = { component.onAddTransactionButtonClicked() }, content = {
             Text(text = "Add New Transaction")
-        })
-        Button(onClick = { component.navigateToAddBucketSelected() }, content = {
-            Text(text = "Add New Bucket")
-        })
+            })
+            Button(onClick = { component.navigateToAddBucketSelected() }, content = {
+                Text(text = "Add New Bucket")
+            })
+        }
     }
 }
