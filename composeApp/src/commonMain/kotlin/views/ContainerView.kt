@@ -123,7 +123,7 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
             )
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             //This component should also hold the state for the inner internal items
-            LazyColumn {
+            LazyColumn(modifier = Modifier.fillMaxHeight(0.7f)) {
                 items(bucketsState.value) { container ->
                     Text(
                         text = when (container.containerType) {
@@ -159,12 +159,12 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
                     }
                 }
             }
-        }
-        Button(onClick = { component.onAddTransactionButtonClicked() }, content = {
+            Button(onClick = { component.onAddTransactionButtonClicked() }, content = {
             Text(text = "Add New Transaction")
-        })
-        Button(onClick = { component.navigateToAddBucketSelected() }, content = {
-            Text(text = "Add New Bucket")
-        })
+            })
+            Button(onClick = { component.navigateToAddBucketSelected() }, content = {
+                Text(text = "Add New Bucket")
+            })
+        }
     }
 }
