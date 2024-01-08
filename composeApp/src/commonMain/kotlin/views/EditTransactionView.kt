@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
+import components.DeletionConfirmationDialog
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -41,13 +42,26 @@ fun EditTransactionView(component: EditTransactionComponent) {
     val transactionDate =
         rememberDatePickerState(
             initialSelectedDateMillis = if (component.currentTransaction != null) {
-                component.currentTransaction?.transactionDate?.atStartOfDayIn(TimeZone.currentSystemDefault())?.toEpochMilliseconds()
+                component.currentTransaction?.transactionDate?.atStartOfDayIn(TimeZone.currentSystemDefault())
+                    ?.toEpochMilliseconds()
             } else {
                 System.currentTimeMillis()
             }, initialDisplayMode = DisplayMode.Input
         )
-    val currentBucket = remember { mutableStateOf(component.listBuckets.find { bucket -> bucket.id == component.currentTransaction?.bucketId }) }
+    val currentBucket =
+        remember { mutableStateOf(component.listBuckets.find { bucket -> bucket.id == component.currentTransaction?.bucketId }) }
     val expanded = remember { mutableStateOf(false) }
+    val deletionConfirmationState = remember { mutableStateOf(false) }
+    if (deletionConfirmationState.value) {
+        DeletionConfirmationDialog(text = TRANSACTION_DELETION_DIALOG, onConfirm = {
+            component.currentTransaction?.let { currentTransaction ->
+                component.deleteTransaction(currentTransaction.id)
+            }
+            deletionConfirmationState.value = false
+        }, onDismissRequest = {
+            deletionConfirmationState.value = false
+        })
+    }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         //TODO: Component-ize
         Text(text = "Bucket", fontSize = 24.sp)
@@ -94,9 +108,7 @@ fun EditTransactionView(component: EditTransactionComponent) {
         val transaction = component.currentTransaction
         if (transaction != null) {
             Button(onClick = {
-                transaction.id.let { uuid ->
-                    component.deleteTransaction(uuid)
-                }
+                deletionConfirmationState.value = !deletionConfirmationState.value
             }) {
                 Text(text = "Delete Transaction")
             }
@@ -106,7 +118,9 @@ fun EditTransactionView(component: EditTransactionComponent) {
                     component.updateTransaction(
                         selectedBucket.id, transaction, transaction.copy(
                             transactionAmount = transactionAmount.value,
-                            transactionDate = Instant.fromEpochMilliseconds(transactionDate.selectedDateMillis ?: 0)
+                            transactionDate = Instant.fromEpochMilliseconds(
+                                transactionDate.selectedDateMillis ?: 0
+                            )
                                 .toLocalDateTime(
                                     TimeZone.currentSystemDefault()
                                 ).date,
@@ -124,8 +138,11 @@ fun EditTransactionView(component: EditTransactionComponent) {
                     component.createTransaction(
                         bucketId = onClickValue.id,
                         transactionAmount = transactionAmount.value,
-                        transactionDate = Instant.fromEpochMilliseconds(transactionDate.selectedDateMillis ?: 0).toLocalDateTime(
-                            TimeZone.currentSystemDefault()).date,
+                        transactionDate = Instant.fromEpochMilliseconds(
+                            transactionDate.selectedDateMillis ?: 0
+                        ).toLocalDateTime(
+                            TimeZone.currentSystemDefault()
+                        ).date,
                         transactionNote = transactionNote.value
                     )
                 }

@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
@@ -21,15 +23,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import components.DeletionConfirmationDialog
 import viewmodels.EditTransactionComponent
 import viewmodels.TransactionDetailsComponent
 import java.text.NumberFormat
 import java.util.Locale
 
+public const val TRANSACTION_DELETION_DIALOG = "Are you sure that you want to delete this transaction?"
+
 @Composable
 fun TransactionDetailView(component: TransactionDetailsComponent) {
+    val deletionConfirmationState = remember { mutableStateOf(false) }
     val transaction = component.transactionModel.subscribeAsState()
     val formatter = NumberFormat.getCurrencyInstance(Locale.US)
+    if(deletionConfirmationState.value) {
+        DeletionConfirmationDialog(text = TRANSACTION_DELETION_DIALOG, onConfirm = {
+            component.deleteTransaction(transactionId = transaction.value.id)
+            deletionConfirmationState.value = false
+        }, onDismissRequest = { deletionConfirmationState.value = false })
+    }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(16.dp)) {
         Text(text = "Transaction Details", fontWeight = FontWeight.Bold, fontSize = 32.sp, modifier = Modifier.padding(vertical = 8.dp))
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
@@ -50,7 +62,7 @@ fun TransactionDetailView(component: TransactionDetailsComponent) {
             Text(text = "Update Transaction")
         }
         Button(onClick = {
-            component.deleteTransaction(transactionId = transaction.value.id)
+            deletionConfirmationState.value = !deletionConfirmationState.value
         }) {
             Text(text = "Delete Transaction")
         }
