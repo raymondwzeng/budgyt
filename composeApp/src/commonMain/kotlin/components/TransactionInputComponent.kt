@@ -9,10 +9,10 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import kotlin.math.abs
+import java.math.BigDecimal
 
-//TODO: Replace implementation of currency with BigDecimal - float/double are prone to error
 @Composable
-fun TransactionInputComponent(modifier: Modifier = Modifier, value: Float, onInputChange: (newValue: Float) -> Unit) {
+fun TransactionInputComponent(modifier: Modifier = Modifier, value: BigDecimal, onInputChange: (newValue: BigDecimal) -> Unit) {
     val formatted = GLOBAL_FORMATTER.format(value)
     TextField(
         value = TextFieldValue(
@@ -22,22 +22,20 @@ fun TransactionInputComponent(modifier: Modifier = Modifier, value: Float, onInp
         modifier = modifier,
         singleLine = true,
         onValueChange = { newAmount ->
-            var updatedValue = value.toDouble()
-            if(abs(GLOBAL_FORMATTER.parse(newAmount.text).toDouble() - updatedValue) >= 0.001) {
-                if(newAmount.text.length - newAmount.text.indexOf('.') <= 2) {
-                    updatedValue /= 10
-                    if(abs(updatedValue - 0) < 0.01) {
-                        updatedValue = 0.0
-                    }
-                } else {
-                    val lastCharacter = newAmount.text[newAmount.text.length - 1]
-                    if(lastCharacter.isDigit()) {
-                        updatedValue *= 10
-                        updatedValue += "0.0$lastCharacter".toFloat()
-                    }
-                }
-                onInputChange(updatedValue.toFloat())
-            }
+            var updatedValue = value
+            // if(newAmount.text.length - newAmount.text.indexOf('.') <= 2) {
+            //     updatedValue /= 10
+            //     if(abs(updatedValue - 0) < 0.01) {
+            //         updatedValue = 0.0
+            //     }
+            // } else {
+            //     val lastCharacter = newAmount.text[newAmount.text.length - 1]
+            //     if(lastCharacter.isDigit()) {
+            //         updatedValue *= 10
+            //         updatedValue += "0.0$lastCharacter".toFloat()
+            //     }
+            // }
+            onInputChange(updatedValue)
         },
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
     )

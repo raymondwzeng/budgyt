@@ -37,6 +37,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import models.BucketType
 import viewmodels.ListComponent
+import java.math.BigDecimal
 
 val months = mapOf(
     1 to "January",
@@ -150,7 +151,7 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
                             BucketCard(
                                 name = bucket.value.bucketName,
                                 estimatedAmount = bucket.value.estimatedAmount,
-                                actualAmount = bucket.value.transactions.sumOf { it.transactionAmount.toDouble() },
+                                actualAmount = bucket.value.transactions.sumOf { it.transactionAmount },
                                 onClick = fun() {
                                     component.onItemClicked(bucket.value)
                                 }

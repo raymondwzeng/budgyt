@@ -7,6 +7,7 @@ import models.Bucket
 import models.Transaction
 import models.toApplicationDataModel
 import java.util.UUID
+import java.math.BigDecimal
 
 enum class TransactionEditType {
     CREATE,
@@ -19,7 +20,7 @@ interface EditTransactionComponent {
     val listBuckets: List<Bucket>
     fun createTransaction(
         bucketId: UUID,
-        transactionAmount: Float,
+        transactionAmount: BigDecimal,
         transactionNote: String,
         transactionDate: LocalDate
     )
@@ -44,7 +45,7 @@ class DefaultEditTransactionComponent(
 
     override fun createTransaction(
         bucketId: UUID,
-        transactionAmount: Float,
+        transactionAmount: BigDecimal,
         transactionNote: String,
         transactionDate: LocalDate
     ) {
@@ -54,7 +55,7 @@ class DefaultEditTransactionComponent(
             bucket_id = bucketId,
             transaction_date = transactionDate,
             transaction_note = transactionNote,
-            transaction_amount = transactionAmount.toDouble()
+            transaction_amount = transactionAmount
         )
         onTransactionUpdated(TransactionEditType.CREATE, transactionId, bucketId)
     }
@@ -68,7 +69,7 @@ class DefaultEditTransactionComponent(
             throw Exception("ERROR: Old transaction id is not the same as new transaction id! This is unexpected behavior.")
         }
         database.transactionQueries.updateTransaction(
-            transaction_amount = newTransaction.transactionAmount.toDouble(),
+            transaction_amount = newTransaction.transactionAmount,
             transaction_note = newTransaction.note,
             transaction_date = newTransaction.transactionDate,
             bucket_id = bucketId,
