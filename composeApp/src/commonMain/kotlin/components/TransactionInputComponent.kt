@@ -10,6 +10,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import kotlin.math.abs
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Composable
 fun TransactionInputComponent(modifier: Modifier = Modifier, value: BigDecimal, onInputChange: (newValue: BigDecimal) -> Unit) {
@@ -23,18 +24,17 @@ fun TransactionInputComponent(modifier: Modifier = Modifier, value: BigDecimal, 
         singleLine = true,
         onValueChange = { newAmount ->
             var updatedValue = value
-            // if(newAmount.text.length - newAmount.text.indexOf('.') <= 2) {
-            //     updatedValue /= 10
-            //     if(abs(updatedValue - 0) < 0.01) {
-            //         updatedValue = 0.0
-            //     }
-            // } else {
-            //     val lastCharacter = newAmount.text[newAmount.text.length - 1]
-            //     if(lastCharacter.isDigit()) {
-            //         updatedValue *= 10
-            //         updatedValue += "0.0$lastCharacter".toFloat()
-            //     }
-            // }
+            if(newAmount.text.length - newAmount.text.indexOf('.') <= 2) {
+                updatedValue = updatedValue.movePointLeft(1) //We need to force the scale to be 2?
+                updatedValue = updatedValue.setScale(2, RoundingMode.DOWN)
+            } else {
+                val lastCharacter = newAmount.text[newAmount.text.length - 1]
+                if(lastCharacter.isDigit()) {
+                    updatedValue = updatedValue.movePointRight(1) //No need to update scale when moving right.
+                    val newValue = BigDecimal("0.0$lastCharacter") //TODO: Is this jank?
+                    updatedValue += newValue
+                }
+            }
             onInputChange(updatedValue)
         },
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
