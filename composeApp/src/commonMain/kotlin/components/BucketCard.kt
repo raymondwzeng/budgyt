@@ -19,13 +19,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.text.NumberFormat
 import java.util.Locale
+import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BucketCard(
     name: String,
-    actualAmount: Double,
-    estimatedAmount: Float,
+    actualAmount: BigDecimal,
+    estimatedAmount: BigDecimal,
     onClick: () -> Unit = {}
 ) {
     MaterialTheme {

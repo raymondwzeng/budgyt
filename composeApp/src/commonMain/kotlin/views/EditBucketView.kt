@@ -19,13 +19,14 @@ import models.BucketType
 import viewmodels.EditBucketComponent
 import java.text.NumberFormat
 import java.util.Locale
+import java.math.BigDecimal
 
 @Composable
 fun EditBucketView(component: EditBucketComponent) {
     val bucketName = remember { mutableStateOf(component.bucket?.bucketName ?: "") }
     val bucketType = remember { mutableStateOf(component.bucket?.bucketType ?: BucketType.INFLOW) }
     val bucketTypeExpanded = remember { mutableStateOf(false) }
-    val bucketEstimateAmount = remember { mutableStateOf(component.bucket?.estimatedAmount ?: 0f) }
+    val bucketEstimateAmount = remember { mutableStateOf(component.bucket?.estimatedAmount ?: BigDecimal(0.0)) }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = "Bucket Name", fontSize = 24.sp)
         TextField(

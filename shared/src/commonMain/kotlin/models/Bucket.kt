@@ -4,6 +4,7 @@ import com.technology626.budgyt.Bucket
 import com.technology626.budgyt.budgyt
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
+import java.math.BigDecimal
 import java.time.Month
 import java.util.UUID
 
@@ -16,7 +17,8 @@ data class Bucket(
     @Serializable(with = JavaUUIDSerializer::class)
     val id: UUID,
     val bucketName: String,
-    val estimatedAmount: Float,
+    @Serializable(with = BigDecimalSerializer::class)
+    val estimatedAmount: BigDecimal,
     val transactions: List<Transaction>,
     val bucketType: BucketType
 )
@@ -25,7 +27,7 @@ fun Bucket.toApplicationDataModel(budgyt: budgyt): models.Bucket {
     return Bucket(
         id = this.id,
         bucketName = bucket_name,
-        estimatedAmount = bucket_estimate.toFloat(),
+        estimatedAmount = bucket_estimate,
         bucketType = bucket_type, //TODO: Make coroutine context actually work
         transactions = budgyt.transactionQueries.getTransactionsForBucketId(this.id).executeAsList()
             .map { budgetTransaction -> budgetTransaction.toApplicationDataModel() }
@@ -47,7 +49,7 @@ fun Bucket.toApplicationDataModelOfMonth(budgyt: budgyt, currentDate: LocalDate)
     return Bucket(
         id = this.id,
         bucketName = bucket_name,
-        estimatedAmount = bucket_estimate.toFloat(),
+        estimatedAmount = bucket_estimate,
         bucketType = bucket_type,
         transactions = budgyt.transactionQueries.getTransactionsForBucketForRange(
             this.id, lowEnd, highEnd
@@ -59,7 +61,7 @@ fun Bucket.toApplicationDataModel(): models.Bucket {
     return Bucket(
         id = this.id,
         bucketName = bucket_name,
-        estimatedAmount = bucket_estimate.toFloat(),
+        estimatedAmount = bucket_estimate,
         bucketType = bucket_type,
         transactions = emptyList()
     )

@@ -33,12 +33,13 @@ import viewmodels.EditTransactionComponent
 import java.text.NumberFormat
 import java.util.Locale
 import java.util.UUID
+import java.math.BigDecimal
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTransactionView(component: EditTransactionComponent) {
     val transactionAmount =
-        remember { mutableStateOf(component.currentTransaction?.transactionAmount ?: 0f) }
+        remember { mutableStateOf(component.currentTransaction?.transactionAmount ?: BigDecimal(0.0)) }
     val transactionNote = remember { mutableStateOf(component.currentTransaction?.note ?: "") }
     val transactionDate =
         rememberDatePickerState(
