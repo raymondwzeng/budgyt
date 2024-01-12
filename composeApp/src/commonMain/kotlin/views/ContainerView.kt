@@ -3,6 +3,7 @@ package views
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -117,7 +118,7 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             //This component should also hold the state for the inner internal items
-            LazyColumn(modifier = Modifier.fillMaxHeight(0.7f)) {
+            LazyColumn(modifier = Modifier.fillMaxHeight()) {
                 items(bucketsState.value) { container ->
                     Text(
                         text = when (container.containerType) {
@@ -153,12 +154,6 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
                     }
                 }
             }
-//            Button(onClick = { component.onAddTransactionButtonClicked() }, content = {
-//            Text(text = "Add New Transaction")
-//            })
-//            Button(onClick = { component.navigateToAddBucketSelected() }, content = {
-//                Text(text = "Add New Bucket")
-//            })
         }
     }
 }
