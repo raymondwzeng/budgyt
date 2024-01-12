@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import kotlin.math.abs
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -31,8 +30,14 @@ fun TransactionInputComponent(modifier: Modifier = Modifier, value: BigDecimal, 
                 val lastCharacter = newAmount.text[newAmount.text.length - 1]
                 if(lastCharacter.isDigit()) {
                     updatedValue = updatedValue.movePointRight(1) //No need to update scale when moving right.
-                    val newValue = BigDecimal("0.0$lastCharacter") //TODO: Is this jank?
-                    updatedValue += newValue
+                    val newValue = BigDecimal("0.0$updatedValue")
+                    if(updatedValue >= BigDecimal(0)) {
+                        updatedValue += newValue
+                    } else {
+                        updatedValue -= newValue
+                    }
+                } else if (lastCharacter == '-') {
+                    updatedValue = updatedValue.negate()
                 }
             }
             onInputChange(updatedValue)
