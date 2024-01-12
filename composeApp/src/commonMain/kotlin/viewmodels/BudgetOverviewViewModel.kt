@@ -251,13 +251,17 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     sealed interface Config {
         @Serializable
         data object ListConfig : Config
+
+        @Serializable
         data class Details(val item: Bucket) : Config
 
+        @Serializable
         data class TransactionDetails(val item: Transaction) : Config
 
+        @Serializable
         data class Add(val item: Transaction?) : Config
 
-
+        @Serializable
         data class AddEditBucket(val bucket: Bucket?) : Config
     }
 }
