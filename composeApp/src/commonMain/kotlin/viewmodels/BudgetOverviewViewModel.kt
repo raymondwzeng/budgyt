@@ -33,6 +33,10 @@ interface BaseViewModel {
 
     fun onBackClicked(toIndex: Int)
 
+    fun navigateToAddTransaction()
+
+    fun navigateToAddBucket()
+
     sealed class Child {
         class ListChild(val component: ListComponent) : Child()
         class BucketDetailsChild(val component: DetailsComponent) : Child()
@@ -158,10 +162,6 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             onItemSelected = { bucket ->
                 navigation.push(configuration = Config.Details(bucket))
             },
-            onAddTransactionSelected = { transaction ->
-                navigation.push(configuration = Config.Add(transaction))
-            },
-            onAddBucketSelected = { navigation.push(configuration = Config.AddEditBucket(bucket = null)) },
             onUpdateCurrentDate = { month, year ->
                 currentDate.update {
                     LocalDate(year = year, monthNumber = month,  dayOfMonth = 1)
@@ -169,6 +169,14 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
                 updateCache()
             }
         )
+    }
+
+    override fun navigateToAddTransaction() {
+        navigation.push(configuration = Config.Add(item = null))
+    }
+
+    override fun navigateToAddBucket() {
+        navigation.push(configuration = Config.AddEditBucket(bucket = null))
     }
 
     private fun editTransactionComponent(

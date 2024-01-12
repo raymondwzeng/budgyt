@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
+import components.AddItemFloatingActionButton
 import viewmodels.BaseViewModel
 import views.BucketView
 import views.ContainerView
@@ -57,7 +58,10 @@ fun App(deviceType: DeviceType, component: BaseViewModel) {
                         }
                     }
                 )
-            } //TODO: Floating action bar
+            },
+            floatingActionButton = {
+
+            }
         ) { innerPadding ->
             Column(
                 modifier = Modifier.fillMaxSize().padding(innerPadding),
@@ -73,6 +77,9 @@ fun App(deviceType: DeviceType, component: BaseViewModel) {
                     )
                 }
             }
+        }
+        if(child.value.active.instance is BaseViewModel.Child.ListChild) {
+            AddItemFloatingActionButton(onAddBucket = { component.navigateToAddBucket() }, onAddTransaction = { component.navigateToAddTransaction() })
         }
     }
 }

@@ -5,16 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -28,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import components.BucketCard
 import components.InflowOutflowComponent
@@ -37,7 +31,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import models.BucketType
 import viewmodels.ListComponent
-import java.math.BigDecimal
 
 val months = mapOf(
     1 to "January",
@@ -160,12 +153,12 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
                     }
                 }
             }
-            Button(onClick = { component.onAddTransactionButtonClicked() }, content = {
-            Text(text = "Add New Transaction")
-            })
-            Button(onClick = { component.navigateToAddBucketSelected() }, content = {
-                Text(text = "Add New Bucket")
-            })
+//            Button(onClick = { component.onAddTransactionButtonClicked() }, content = {
+//            Text(text = "Add New Transaction")
+//            })
+//            Button(onClick = { component.navigateToAddBucketSelected() }, content = {
+//                Text(text = "Add New Bucket")
+//            })
         }
     }
 }
