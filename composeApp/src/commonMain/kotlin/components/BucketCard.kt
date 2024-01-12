@@ -33,10 +33,8 @@ fun BucketCard(
         Card(modifier = Modifier.fillMaxWidth(0.8f)
             .padding(16.dp).height(IntrinsicSize.Min), elevation = 4.dp, onClick = onClick) {
             Column(modifier = Modifier.padding(4.dp)) {
-                Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(text=name, fontSize = 24.sp)
-                    Text(textAlign = TextAlign.Left, text=GLOBAL_FORMATTER.format(actualAmount), fontSize = 24.sp)
-                }
+                Text(text=name, fontSize = 24.sp)
+                Text(textAlign = TextAlign.Left, text=GLOBAL_FORMATTER.format(actualAmount), fontSize = 24.sp)
                 Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)){
                     Text(modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Right, text = "Estimated: ${GLOBAL_FORMATTER.format(estimatedAmount)}")
                 }
