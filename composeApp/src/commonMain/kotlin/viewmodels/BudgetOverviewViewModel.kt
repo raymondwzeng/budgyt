@@ -14,12 +14,8 @@ import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
 import com.technology626.budgyt.budgyt
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.minus
-import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
 import kotlinx.serialization.Serializable
 import models.Bucket
@@ -66,7 +62,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         childStack(
             source = navigation,
             serializer = Config.serializer(),
-            initialConfiguration = Config.List,
+            initialConfiguration = Config.ListConfig,
             handleBackButton = true,
             childFactory = ::child
         )
@@ -77,7 +73,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
 
     private fun child(config: Config, componentContext: ComponentContext): BaseViewModel.Child {
         return when (config) {
-            is Config.List -> BaseViewModel.Child.ListChild(listComponent(componentContext))
+            is Config.ListConfig -> BaseViewModel.Child.ListChild(listComponent(componentContext))
             is Config.Details -> BaseViewModel.Child.BucketDetailsChild(
                 bucketDetailsComponent(
                     componentContext,
@@ -253,7 +249,8 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
 
     @Serializable
     sealed interface Config {
-        data object List : Config
+        @Serializable
+        data object ListConfig : Config
         data class Details(val item: Bucket) : Config
 
         data class TransactionDetails(val item: Transaction) : Config
