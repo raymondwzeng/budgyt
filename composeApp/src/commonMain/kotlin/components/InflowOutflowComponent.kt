@@ -37,15 +37,15 @@ fun InflowOutflowComponent(
             Text(text = GLOBAL_FORMATTER.format(totalOutflow))
         }
         Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(text = "Total Funding:")
+            Text(text = "Total Value of Funds:")
             Text(text = GLOBAL_FORMATTER.format(totalFunding))
         }
         Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = "Net Income Flow:", fontSize = 18.sp)
             Text(
-                text = GLOBAL_FORMATTER.format(totalInflow - totalOutflow - totalFunding),
+                text = GLOBAL_FORMATTER.format(totalInflow - totalOutflow),
                 fontSize = 18.sp,
-                color = returnMonetaryValueColor(totalInflow - totalOutflow - totalFunding)
+                color = returnMonetaryValueColor(totalInflow - totalOutflow)
             )
         }
     }
