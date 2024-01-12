@@ -1,16 +1,16 @@
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import viewmodels.BaseViewModel
@@ -47,14 +47,10 @@ fun App(deviceType: DeviceType, component: BaseViewModel) {
             }
         }
         if (deviceType == DeviceType.DESKTOP) {
-            Button(
-                onClick = {
-                    component.onBackClicked(child.value.items.lastIndex - 1)
-                },
-                enabled = child.value.items.size > 1,
-                modifier = Modifier.width(48.dp).height(48.dp).padding(start = 16.dp, top = 16.dp)
-            ) {
-                Text(text = "<", fontSize = 32.sp)
+            IconButton(onClick = {
+                component.onBackClicked(child.value.items.lastIndex - 1)
+            }, enabled = child.value.items.size > 1) {
+                Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
             }
         }
     }
