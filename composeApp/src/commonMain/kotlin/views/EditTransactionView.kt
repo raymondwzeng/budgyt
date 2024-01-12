@@ -1,14 +1,17 @@
 package views
 
-import GLOBAL_FORMATTER
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,29 +20,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
-import components.DeletionConfirmationDialog
 import components.TransactionInputComponent
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import models.Bucket
-import models.Transaction
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import viewmodels.EditTransactionComponent
-import java.text.NumberFormat
-import java.util.Locale
-import java.util.UUID
 import java.math.BigDecimal
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 fun EditTransactionView(component: EditTransactionComponent) {
     val transactionAmount =
-        remember { mutableStateOf(component.currentTransaction?.transactionAmount ?: BigDecimal(0.0)) }
+        remember {
+            mutableStateOf(
+                component.currentTransaction?.transactionAmount ?: BigDecimal(0.0)
+            )
+        }
     val transactionNote = remember { mutableStateOf(component.currentTransaction?.note ?: "") }
     val transactionDate =
         rememberDatePickerState(
@@ -61,10 +61,14 @@ fun EditTransactionView(component: EditTransactionComponent) {
                 value = currentBucket.value?.bucketName ?: "Select Bucket",
                 onValueChange = {},
                 trailingIcon = {
-                    Button(onClick = {
+                    IconButton(onClick = {
                         expanded.value = !expanded.value
                     }) {
-                        Text(">")
+                        if (expanded.value) {
+                            Icon(Icons.Filled.ExpandLess, contentDescription = "Expand less")
+                        } else {
+                            Icon(Icons.Filled.ExpandMore, contentDescription = "Expand more")
+                        }
                     }
                 },
                 readOnly = true
