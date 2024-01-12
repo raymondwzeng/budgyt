@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import models.Container
+import returnMonetaryValueColor
 
 @Composable
 fun InflowOutflowComponent(
@@ -21,11 +22,11 @@ fun InflowOutflowComponent(
     fundContainers: List<Container> = emptyList()
 ) {
     val totalInflow =
-        inflowContainers.sumOf { container -> container.buckets.values.sumOf { bucket -> bucket.transactions.sumOf { transaction -> transaction.transactionAmount.toDouble() } } }
+        inflowContainers.sumOf { container -> container.buckets.values.sumOf { bucket -> bucket.transactions.sumOf { transaction -> transaction.transactionAmount } } }
     val totalOutflow =
-        outflowContainers.sumOf { container -> container.buckets.values.sumOf { bucket -> bucket.transactions.sumOf { transaction -> transaction.transactionAmount.toDouble() } } }
+        outflowContainers.sumOf { container -> container.buckets.values.sumOf { bucket -> bucket.transactions.sumOf { transaction -> transaction.transactionAmount } } }
     val totalFunding =
-        fundContainers.sumOf { container -> container.buckets.values.sumOf { bucket -> bucket.transactions.sumOf { transaction -> transaction.transactionAmount.toDouble() } } }
+        fundContainers.sumOf { container -> container.buckets.values.sumOf { bucket -> bucket.transactions.sumOf { transaction -> transaction.transactionAmount } } }
     Column(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
         Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = "Total Inflow:")
@@ -43,7 +44,8 @@ fun InflowOutflowComponent(
             Text(text = "Net Income Flow:", fontSize = 18.sp)
             Text(
                 text = GLOBAL_FORMATTER.format(totalInflow - totalOutflow - totalFunding),
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                color = returnMonetaryValueColor(totalInflow - totalOutflow - totalFunding)
             )
         }
     }

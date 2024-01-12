@@ -30,7 +30,7 @@ import viewmodels.TransactionDetailsComponent
 import java.text.NumberFormat
 import java.util.Locale
 
-public const val TRANSACTION_DELETION_DIALOG = "Are you sure that you want to delete this transaction?"
+const val TRANSACTION_DELETION_DIALOG = "Are you sure that you want to delete this transaction?"
 
 @Composable
 fun TransactionDetailView(component: TransactionDetailsComponent) {

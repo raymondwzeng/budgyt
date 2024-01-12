@@ -1,6 +1,4 @@
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,13 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
-import com.arkivanov.decompose.router.stack.items
 import viewmodels.BaseViewModel
+import views.BucketView
+import views.ContainerView
 import views.EditBucketView
 import views.EditTransactionView
-import views.ContainerView
 import views.TransactionDetailView
-import views.BucketView
 
 enum class DeviceType {
     ANDROID,
