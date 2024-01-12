@@ -1,6 +1,8 @@
 package views
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -10,9 +12,11 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDatePickerState
@@ -20,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import components.TransactionInputComponent
 import kotlinx.datetime.Instant
@@ -27,11 +33,10 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 import models.Bucket
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import viewmodels.EditTransactionComponent
 import java.math.BigDecimal
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditTransactionView(component: EditTransactionComponent) {
     val transactionAmount =
@@ -52,7 +57,8 @@ fun EditTransactionView(component: EditTransactionComponent) {
         )
     val currentBucket =
         remember { mutableStateOf(component.listBuckets.find { bucket -> bucket.id == component.currentTransaction?.bucketId }) }
-    val expanded = remember { mutableStateOf(false) }
+    val bucketDropdownExpanded = remember { mutableStateOf(false) }
+    val showDateSelectionDialog = remember { mutableStateOf(false) }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         //TODO: Component-ize
         Text(text = "Bucket", fontSize = 24.sp)
@@ -62,9 +68,9 @@ fun EditTransactionView(component: EditTransactionComponent) {
                 onValueChange = {},
                 trailingIcon = {
                     IconButton(onClick = {
-                        expanded.value = !expanded.value
+                        bucketDropdownExpanded.value = !bucketDropdownExpanded.value
                     }) {
-                        if (expanded.value) {
+                        if (bucketDropdownExpanded.value) {
                             Icon(Icons.Filled.ExpandLess, contentDescription = "Expand less")
                         } else {
                             Icon(Icons.Filled.ExpandMore, contentDescription = "Expand more")
@@ -74,13 +80,13 @@ fun EditTransactionView(component: EditTransactionComponent) {
                 readOnly = true
             )
             DropdownMenu(
-                expanded = expanded.value,
-                onDismissRequest = { expanded.value = false }
+                expanded = bucketDropdownExpanded.value,
+                onDismissRequest = { bucketDropdownExpanded.value = false }
             ) {
                 component.listBuckets.forEach { bucket ->
                     BucketDropdown(bucket, onClick = {
                         currentBucket.value = bucket
-                        expanded.value = false
+                        bucketDropdownExpanded.value = false
                     })
                 }
             }
@@ -95,7 +101,35 @@ fun EditTransactionView(component: EditTransactionComponent) {
             onValueChange = { newNote: String -> transactionNote.value = newNote }
         )
         Text(text = "Transaction Date", fontSize = 24.sp)
-        DatePicker(state = transactionDate)
+        TextField(
+            value = Instant.fromEpochMilliseconds(transactionDate.selectedDateMillis ?: 0)
+                .toLocalDateTime(TimeZone.UTC).date.toString(),
+            readOnly = true,
+            onValueChange = {},
+            trailingIcon = {
+                IconButton(onClick = {
+                    showDateSelectionDialog.value = !showDateSelectionDialog.value
+                }) {
+                    Icon(Icons.Filled.CalendarMonth, contentDescription = "Select date")
+                }
+            }
+        )
+        if (showDateSelectionDialog.value) {
+            DatePickerDialog(
+                onDismissRequest = { showDateSelectionDialog.value = false },
+                confirmButton = {
+                        Text(text = "OK", modifier = Modifier.padding(16.dp).clickable(onClick = {
+                            showDateSelectionDialog.value = false
+                        }))
+                },
+                dismissButton = { //TODO: Remember old date chosen and revert onDismiss
+                    Text(text = "Cancel", modifier = Modifier.padding(16.dp).clickable(onClick = {
+                        showDateSelectionDialog.value = false
+                    }))
+                }){
+                DatePicker(state = transactionDate)
+            }
+        }
         val transaction = component.currentTransaction
         if (transaction != null) {
             Button(onClick = {
@@ -108,7 +142,7 @@ fun EditTransactionView(component: EditTransactionComponent) {
                                 transactionDate.selectedDateMillis ?: 0
                             )
                                 .toLocalDateTime(
-                                    TimeZone.currentSystemDefault()
+                                    TimeZone.UTC
                                 ).date,
                             note = transactionNote.value
                         )
@@ -127,7 +161,7 @@ fun EditTransactionView(component: EditTransactionComponent) {
                         transactionDate = Instant.fromEpochMilliseconds(
                             transactionDate.selectedDateMillis ?: 0
                         ).toLocalDateTime(
-                            TimeZone.currentSystemDefault()
+                            TimeZone.UTC
                         ).date,
                         transactionNote = transactionNote.value
                     )
