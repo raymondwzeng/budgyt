@@ -114,14 +114,14 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
                     }
             }
         }
-        if (bucketsState.value.isEmpty()) {
-            Text(text = "No transactions were made within this month.")
-        }
         InflowOutflowComponent(
             inflowContainers = bucketsState.value.filter { container -> container.containerType == BucketType.INFLOW },
             outflowContainers = bucketsState.value.filter { container -> container.containerType == BucketType.OUTFLOW },
             fundContainers = bucketsState.value.filter { container -> container.containerType == BucketType.FUND },
             )
+        if (bucketsState.value.isEmpty()) {
+            Text(text = "No transactions were made within this month.")
+        }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             //This component should also hold the state for the inner internal items
             LazyColumn(modifier = Modifier.fillMaxHeight(0.7f)) {
