@@ -2,8 +2,9 @@ package viewmodels
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
-import com.arkivanov.decompose.value.Value
 import com.technology626.budgyt.budgyt
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import models.Transaction
 import java.util.UUID
 
@@ -11,15 +12,16 @@ interface TransactionDetailsComponent {
     val transactionModel: MutableValue<Transaction>
     fun navigateToEditTransactionDetails(transaction: Transaction)
 
-    fun deleteTransaction(transactionId: UUID)
+    suspend fun deleteTransaction(transaction: Transaction)
 }
 
 class DefaultTransactionDetailsComponent(
     componentContext: ComponentContext,
     private val database: budgyt,
+    val dispatcher: CoroutineDispatcher,
     transactionModel: MutableValue<Transaction>,
     private val onNavigateToEditTransactionDetails: (transaction: Transaction) -> Unit,
-    private val onDeleteTransaction: (bucketId: UUID) -> Unit
+    private val onDeleteTransaction: suspend (bucketId: UUID) -> Unit
 ) :
     TransactionDetailsComponent, ComponentContext by componentContext {
 
@@ -28,10 +30,11 @@ class DefaultTransactionDetailsComponent(
         onNavigateToEditTransactionDetails(transaction)
     }
 
-    override fun deleteTransaction(transactionId: UUID) {
-        val bucketId = database.transactionQueries.getTransactionById(transactionId).executeAsOne().bucket_id
-        database.transactionQueries.deleteTransaction(transactionId)
-        onDeleteTransaction(bucketId)
+    override suspend fun deleteTransaction(transaction: Transaction) {
+        withContext(dispatcher) {
+            database.transactionQueries.deleteTransaction(transaction.id)
+        }
+        onDeleteTransaction(transaction.bucketId!!)
     }
 
 }

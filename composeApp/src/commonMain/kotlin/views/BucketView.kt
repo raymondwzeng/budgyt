@@ -2,7 +2,6 @@ package views
 
 import GLOBAL_FORMATTER
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +13,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import components.DeletionConfirmationDialog
 import components.TransactionItem
+import kotlinx.coroutines.launch
 import models.Transaction
 import viewmodels.DetailsComponent
 
@@ -29,10 +30,13 @@ const val BUCKET_DELETION_DIALOG = "Are you sure that you want to remove this bu
 fun BucketView(component: DetailsComponent) {
     val bucketState = component.bucketModel.subscribeAsState()
     val deletionConfirmationState = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     if (deletionConfirmationState.value) {
         DeletionConfirmationDialog(text = BUCKET_DELETION_DIALOG, onConfirm = {
-            component.removeBucket()
+            coroutineScope.launch {
+                component.removeBucket()
+            }
             deletionConfirmationState.value = false
         }, onDismissRequest = {
             deletionConfirmationState.value = false

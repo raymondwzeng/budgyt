@@ -1,19 +1,19 @@
 package viewmodels
 
 import com.arkivanov.decompose.ComponentContext
-import com.arkivanov.decompose.value.MutableValue
-import com.arkivanov.decompose.value.Value
 import com.technology626.budgyt.budgyt
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import models.Bucket
 import models.BucketType
-import java.util.UUID
 import java.math.BigDecimal
+import java.util.UUID
 
 interface EditBucketComponent {
     val bucket: Bucket?
-    fun addBucket(bucketName: String, bucketType: BucketType, bucketEstimate: BigDecimal)
+    suspend fun addBucket(bucketName: String, bucketType: BucketType, bucketEstimate: BigDecimal)
 
-    fun editBucket(
+    suspend fun editBucket(
         bucketId: UUID,
         bucketName: String,
         bucketType: BucketType,
@@ -24,32 +24,37 @@ interface EditBucketComponent {
 class DefaultEditBucketComponent(
     componentContext: ComponentContext,
     override val bucket: Bucket?,
+    val dispatcher: CoroutineDispatcher,
     private val database: budgyt,
     val onAddBucket: (bucketId: UUID) -> Unit
 ) : EditBucketComponent, ComponentContext by componentContext {
-    override fun addBucket(bucketName: String, bucketType: BucketType, bucketEstimate: BigDecimal) {
+    override suspend fun addBucket(bucketName: String, bucketType: BucketType, bucketEstimate: BigDecimal) {
         val newBucketId = UUID.randomUUID()
-        database.bucketQueries.addBucket(
-            id = newBucketId,
-            bucket_name = bucketName,
-            bucket_type = bucketType,
-            bucket_estimate = bucketEstimate
-        )
+        withContext(dispatcher) {
+            database.bucketQueries.addBucket(
+                id = newBucketId,
+                bucket_name = bucketName,
+                bucket_type = bucketType,
+                bucket_estimate = bucketEstimate
+            )
+        }
         onAddBucket(newBucketId)
     }
 
-    override fun editBucket(
+    override suspend fun editBucket(
         bucketId: UUID,
         bucketName: String,
         bucketType: BucketType,
         bucketEstimate: BigDecimal
     ) {
-        database.bucketQueries.editBucket(
-            bucket_name = bucketName,
-            bucket_type = bucketType,
-            bucket_estimate = bucketEstimate,
-            id = bucketId
-        )
+        withContext(dispatcher) {
+            database.bucketQueries.editBucket(
+                bucket_name = bucketName,
+                bucket_type = bucketType,
+                bucket_estimate = bucketEstimate,
+                id = bucketId
+            )
+        }
         onAddBucket(bucketId)
     }
 }
