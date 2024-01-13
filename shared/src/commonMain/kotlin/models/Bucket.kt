@@ -5,7 +5,6 @@ import com.technology626.budgyt.budgyt
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 import java.math.BigDecimal
-import java.time.Month
 import java.util.UUID
 
 enum class BucketType {
@@ -45,7 +44,6 @@ fun Bucket.toApplicationDataModelOfMonth(budgyt: budgyt, currentDate: LocalDate)
             isLeapYear(currentDate.year)
         )
     )
-    println("Checking for transactions between $lowEnd and $highEnd")
     return Bucket(
         id = this.id,
         bucketName = bucket_name,

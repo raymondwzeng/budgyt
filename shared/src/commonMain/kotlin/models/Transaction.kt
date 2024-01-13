@@ -1,11 +1,10 @@
 package models
 
-import app.cash.sqldelight.Transacter
 import com.technology626.budgyt.BudgetTransaction
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
-import java.util.UUID
 import java.math.BigDecimal
+import java.util.UUID
 
 @Serializable
 data class Transaction(
