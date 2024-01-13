@@ -14,7 +14,7 @@ import models.Bucket
 import repository.BucketRepository
 import java.util.UUID
 
-fun Route.bucket(repository: BucketRepository) {
+fun Route.buckets(repository: BucketRepository) {
     route("/buckets") {
         get("{id?}") {
             try {

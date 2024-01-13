@@ -2,6 +2,7 @@ package com.technology626.budgyt
 
 import DriverFactory
 import SERVER_PORT
+import com.technology626.budgyt.routes.buckets
 import com.technology626.budgyt.routes.transactions
 import createDatabase
 import io.ktor.serialization.kotlinx.json.json
@@ -13,6 +14,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.Dispatchers
+import repository.BucketRepositoryImpl
 import repository.TransactionRepositoryImpl
 
 object CoreModule {
@@ -27,6 +29,7 @@ fun main() {
 
 internal fun Routing.registerRoutes() {
     transactions(TransactionRepositoryImpl(budgyt = CoreModule.budgyt, coroutineDispatcher = CoreModule.DISPATCHER_IO))
+    buckets(BucketRepositoryImpl(budgyt = CoreModule.budgyt, coroutineDispatcher = CoreModule.DISPATCHER_IO))
 }
 
 fun Application.module() {
