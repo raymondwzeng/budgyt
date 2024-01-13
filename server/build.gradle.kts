@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
+    kotlin("plugin.serialization") version "1.9.21"
     application
 }
 
@@ -18,4 +19,6 @@ dependencies {
     implementation(libs.ktor.server.netty)
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.ktor.server.content.negotiation)
 }
