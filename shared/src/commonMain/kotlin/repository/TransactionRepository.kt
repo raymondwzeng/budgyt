@@ -15,8 +15,7 @@ interface TransactionRepository {
     suspend fun deleteTransaction(transactionId: UUID): Boolean
 
     suspend fun updateTransaction(
-        transactionId: UUID,
-        transaction: Transaction
+        updatedTransaction: Transaction
     ): Result<Transaction>
 
     suspend fun getTransactionsForBucketId(bucketId: UUID): Result<List<Transaction>>
@@ -62,22 +61,21 @@ class TransactionRepositoryImpl(val budgyt: budgyt, val coroutineDispatcher: Cor
     }
 
     override suspend fun updateTransaction(
-        transactionId: UUID,
-        transaction: Transaction
+        updatedTransaction: Transaction
     ): Result<Transaction> {
         return withContext(coroutineDispatcher) {
             budgyt.transactionQueries.updateTransaction(
-                transaction_amount = transaction.transactionAmount,
-                transaction_note = transaction.note,
-                transaction_date = transaction.transactionDate,
-                bucket_id = transaction.bucketId!!, //TODO: Code smell
-                id = transactionId
+                transaction_amount = updatedTransaction.transactionAmount,
+                transaction_note = updatedTransaction.note,
+                transaction_date = updatedTransaction.transactionDate,
+                bucket_id = updatedTransaction.bucketId,
+                id = updatedTransaction.id
             )
-            return@withContext budgyt.transactionQueries.getTransactionById(id = transactionId)
+            return@withContext budgyt.transactionQueries.getTransactionById(id = updatedTransaction.id)
                 .executeAsOneOrNull()?.let { transaction ->
                     Result.success(transaction.toApplicationDataModel())
                 }
-                ?: Result.failure(Exception("Failed to update new transaction into database for id $transactionId, transaction $transaction."))
+                ?: Result.failure(Exception("Failed to update new transaction into database for transaction $updatedTransaction."))
         }
     }
 
