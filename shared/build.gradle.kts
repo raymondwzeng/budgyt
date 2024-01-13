@@ -27,6 +27,7 @@ kotlin {
             implementation("app.cash.sqldelight:android-driver:2.0.1")
         }
         jvmMain.dependencies {
+            implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.3.6")
             implementation("app.cash.sqldelight:sqlite-driver:2.0.1")
         }
     }

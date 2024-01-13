@@ -27,7 +27,7 @@ interface EditTransactionComponent {
         transactionDate: LocalDate
     )
 
-    suspend fun updateTransaction(bucketId: UUID, oldTransaction: Transaction, newTransaction: Transaction)
+    suspend fun updateTransaction(updatedTransaction: Transaction)
 
     suspend fun deleteTransaction(transactionId: UUID)
 
@@ -38,7 +38,7 @@ class DefaultEditTransactionComponent(
     override val currentTransaction: Transaction?,
     val dispatcher: CoroutineDispatcher,
     private val database: budgyt,
-    private val onTransactionUpdated: suspend (editType: TransactionEditType, transactionId: UUID, bucketId: UUID) -> Unit,
+    private val onTransactionUpdated: suspend (editType: TransactionEditType, transaction: Transaction) -> Unit,
 ) : EditTransactionComponent,
     ComponentContext by componentContext {
 
@@ -53,6 +53,13 @@ class DefaultEditTransactionComponent(
         transactionDate: LocalDate
     ) {
         val transactionId = UUID.randomUUID()
+        val newTransaction = Transaction(
+            id = transactionId,
+            bucketId = bucketId,
+            note = transactionNote,
+            transactionAmount = transactionAmount,
+            transactionDate = transactionDate
+        )
         withContext(dispatcher) {
             database.transactionQueries.addTransaction(
                 id = transactionId,
@@ -62,35 +69,35 @@ class DefaultEditTransactionComponent(
                 transaction_amount = transactionAmount
             )
         }
-        onTransactionUpdated(TransactionEditType.CREATE, transactionId, bucketId)
+        onTransactionUpdated(TransactionEditType.CREATE, newTransaction)
     }
 
     override suspend fun updateTransaction(
-        bucketId: UUID,
-        oldTransaction: Transaction,
-        newTransaction: Transaction
+        updatedTransaction: Transaction
     ) {
-        if (oldTransaction.id != newTransaction.id) {
-            throw Exception("ERROR: Old transaction id is not the same as new transaction id! This is unexpected behavior.")
-        }
         withContext(dispatcher) {
             database.transactionQueries.updateTransaction(
-                transaction_amount = newTransaction.transactionAmount,
-                transaction_note = newTransaction.note,
-                transaction_date = newTransaction.transactionDate,
-                bucket_id = bucketId,
-                id = oldTransaction.id
+                transaction_amount = updatedTransaction.transactionAmount,
+                transaction_note = updatedTransaction.note,
+                transaction_date = updatedTransaction.transactionDate,
+                bucket_id = updatedTransaction.bucketId,
+                id = updatedTransaction.id
             )
         }
-        onTransactionUpdated(TransactionEditType.UPDATE, newTransaction.id, bucketId)
+        onTransactionUpdated(TransactionEditType.UPDATE, updatedTransaction)
     }
 
     override suspend fun deleteTransaction(transactionId: UUID) {
-        val bucketId =
-            database.transactionQueries.getTransactionById(transactionId).executeAsOne().bucket_id
+        lateinit var transaction: Transaction
         withContext(dispatcher) {
-            database.transactionQueries.deleteTransaction(id = transactionId)
+            transaction =
+                database.transactionQueries.getTransactionById(transactionId).executeAsOne()
+                    .toApplicationDataModel()
+            database.transactionQueries.deleteTransaction(id = transaction.id) //TODO: Check for race condition
         }
-        onTransactionUpdated(TransactionEditType.DELETE, transactionId, bucketId)
+        onTransactionUpdated(
+            TransactionEditType.DELETE,
+            transaction
+        ) //TODO: Consider refactoring - this is a big dangerous as the transaction technically shouldn't exist anymore
     }
 }

@@ -34,7 +34,7 @@ class DefaultTransactionDetailsComponent(
         withContext(dispatcher) {
             database.transactionQueries.deleteTransaction(transaction.id)
         }
-        onDeleteTransaction(transaction.bucketId!!)
+        onDeleteTransaction(transaction.bucketId)
     }
 
 }

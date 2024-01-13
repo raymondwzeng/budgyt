@@ -10,7 +10,7 @@ import java.util.UUID
 
 
 interface TransactionRepository {
-    suspend fun addTransaction(transaction: Transaction, bucketId: UUID): Result<Transaction>
+    suspend fun addTransaction(transaction: Transaction): Result<Transaction>
 
     suspend fun deleteTransaction(transactionId: UUID): Boolean
 
@@ -33,8 +33,7 @@ interface TransactionRepository {
 class TransactionRepositoryImpl(val budgyt: budgyt, val coroutineDispatcher: CoroutineDispatcher) :
     TransactionRepository {
     override suspend fun addTransaction(
-        transaction: Transaction,
-        bucketId: UUID
+        transaction: Transaction
     ): Result<Transaction> {
         return withContext(coroutineDispatcher) {
             budgyt.transactionQueries.addTransaction(
@@ -42,13 +41,13 @@ class TransactionRepositoryImpl(val budgyt: budgyt, val coroutineDispatcher: Cor
                 transaction_amount = transaction.transactionAmount,
                 transaction_note = transaction.note,
                 transaction_date = transaction.transactionDate,
-                bucket_id = bucketId
+                bucket_id = transaction.bucketId
             )
             return@withContext budgyt.transactionQueries.getTransactionById(transaction.id)
                 .executeAsOneOrNull()?.let { transaction ->
                     Result.success(transaction.toApplicationDataModel())
                 }
-                ?: Result.failure(Exception("Failed to insert new transaction into database. Transaction: $transaction and bucket ID: $bucketId"))
+                ?: Result.failure(Exception("Failed to insert new transaction into database. Transaction: $transaction"))
         }
     }
 
