@@ -13,6 +13,9 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
 import com.technology626.budgyt.budgyt
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -49,7 +52,7 @@ interface BaseViewModel {
     }
 }
 
-class BudgetOverviewViewModel(componentContext: ComponentContext, database: budgyt) : BaseViewModel,
+class BudgetOverviewViewModel(componentContext: ComponentContext, database: budgyt, val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO) : BaseViewModel,
     ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
 
@@ -120,16 +123,19 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         }
     }
 
-    private fun updateBucketInCallstack(bucketId: UUID) {
+    private suspend fun updateBucketInCallstack(bucketId: UUID) {
         callstack.items.forEach { item ->
             if (item.instance is BaseViewModel.Child.BucketDetailsChild) {
-                (item.instance as BaseViewModel.Child.BucketDetailsChild).component.bucketModel.update {
-                    (item.instance as BaseViewModel.Child.BucketDetailsChild).component.bucketModel.value.copy(
-                        transactions = store.transactionQueries.getTransactionsForBucketId(
-                            bucketId
-                        ).executeAsList()
-                            .map { budgetTransaction -> budgetTransaction.toApplicationDataModel() }
-                    )
+                val child = item.instance as BaseViewModel.Child.BucketDetailsChild
+                withContext(coroutineDispatcher) {
+                    child.component.bucketModel.update {
+                        child.component.bucketModel.value.copy(
+                            transactions = store.transactionQueries.getTransactionsForBucketId(
+                                bucketId
+                            ).executeAsList()
+                                .map { budgetTransaction -> budgetTransaction.toApplicationDataModel() }
+                        )
+                    }
                 }
             }
         }
@@ -142,6 +148,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         return DefaultTransactionDetailsComponent(
             componentContext = componentContext,
             database = store,
+            dispatcher = coroutineDispatcher,
             transactionModel = MutableValue(transaction),
             onDeleteTransaction = { bucketId ->
                 updateCache()
@@ -185,6 +192,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
     ): EditTransactionComponent {
         return DefaultEditTransactionComponent(
             componentContext = componentContext,
+            dispatcher = coroutineDispatcher,
             database = store,
             currentTransaction = transaction,
             onTransactionUpdated = { transactionEditType, transactionId, bucketId ->
@@ -220,6 +228,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         return DefaultDetailsComponent(
             componentContext = componentContext,
             item = MutableValue(config.item),
+            dispatcher = coroutineDispatcher,
             database = store,
             onFinished = {
                 updateCache()
@@ -241,6 +250,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
         return DefaultEditBucketComponent(
             componentContext = componentContext,
             bucket = bucket,
+            dispatcher = coroutineDispatcher,
             database = store,
             onAddBucket = { bucketId ->
                 updateCache()

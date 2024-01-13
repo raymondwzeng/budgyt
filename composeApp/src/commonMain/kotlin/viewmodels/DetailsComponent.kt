@@ -2,8 +2,9 @@ package viewmodels
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.value.MutableValue
-import com.arkivanov.decompose.value.Value
 import com.technology626.budgyt.budgyt
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 import models.Bucket
 import models.Transaction
 
@@ -13,12 +14,13 @@ interface DetailsComponent {
     fun navigateToTransactionDetail(transaction: Transaction)
 
     fun navigateToEditBucket()
-    fun removeBucket()
+    suspend fun removeBucket()
 }
 
 class DefaultDetailsComponent(
     componentContext: ComponentContext,
     item: MutableValue<Bucket>,
+    val dispatcher: CoroutineDispatcher,
     val database: budgyt,
     private val onNavigateToTransactionDetails: (transaction: Transaction) -> Unit,
     private val onNavigateToEditBucket: (bucket: Bucket) -> Unit,
@@ -33,8 +35,10 @@ class DefaultDetailsComponent(
         onNavigateToEditBucket(bucketModel.value)
     }
 
-    override fun removeBucket() {
-        database.bucketQueries.deleteBucket(bucketModel.value.id)
+    override suspend fun removeBucket() {
+        withContext(dispatcher) {
+            database.bucketQueries.deleteBucket(bucketModel.value.id)
+        }
         onFinished()
     }
 }

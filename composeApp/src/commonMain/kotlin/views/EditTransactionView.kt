@@ -23,11 +23,13 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import components.TransactionInputComponent
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -59,6 +61,7 @@ fun EditTransactionView(component: EditTransactionComponent) {
         remember { mutableStateOf(component.listBuckets.find { bucket -> bucket.id == component.currentTransaction?.bucketId }) }
     val bucketDropdownExpanded = remember { mutableStateOf(false) }
     val showDateSelectionDialog = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         //TODO: Component-ize
         Text(text = "Bucket", fontSize = 24.sp)
@@ -135,18 +138,20 @@ fun EditTransactionView(component: EditTransactionComponent) {
             Button(onClick = {
                 val selectedBucket = currentBucket.value
                 if (selectedBucket != null) {
-                    component.updateTransaction(
-                        selectedBucket.id, transaction, transaction.copy(
-                            transactionAmount = transactionAmount.value,
-                            transactionDate = Instant.fromEpochMilliseconds(
-                                transactionDate.selectedDateMillis ?: 0
+                    coroutineScope.launch {
+                        component.updateTransaction(
+                            selectedBucket.id, transaction, transaction.copy(
+                                transactionAmount = transactionAmount.value,
+                                transactionDate = Instant.fromEpochMilliseconds(
+                                    transactionDate.selectedDateMillis ?: 0
+                                )
+                                    .toLocalDateTime(
+                                        TimeZone.UTC
+                                    ).date,
+                                note = transactionNote.value
                             )
-                                .toLocalDateTime(
-                                    TimeZone.UTC
-                                ).date,
-                            note = transactionNote.value
                         )
-                    )
+                    }
                 }
             }) {
                 Text(text = "Update Transaction")
@@ -155,16 +160,18 @@ fun EditTransactionView(component: EditTransactionComponent) {
             Button(onClick = {
                 val onClickValue = currentBucket.value
                 if (onClickValue != null) {
-                    component.createTransaction(
-                        bucketId = onClickValue.id,
-                        transactionAmount = transactionAmount.value,
-                        transactionDate = Instant.fromEpochMilliseconds(
-                            transactionDate.selectedDateMillis ?: 0
-                        ).toLocalDateTime(
-                            TimeZone.UTC
-                        ).date,
-                        transactionNote = transactionNote.value
-                    )
+                    coroutineScope.launch {
+                        component.createTransaction(
+                            bucketId = onClickValue.id,
+                            transactionAmount = transactionAmount.value,
+                            transactionDate = Instant.fromEpochMilliseconds(
+                                transactionDate.selectedDateMillis ?: 0
+                            ).toLocalDateTime(
+                                TimeZone.UTC
+                            ).date,
+                            transactionNote = transactionNote.value
+                        )
+                    }
                 }
             }) {
                 Text(text = "Add New Transaction")
