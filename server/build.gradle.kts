@@ -21,4 +21,5 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
     implementation(libs.ktor.server.content.negotiation)
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.3.6")
+    implementation(libs.kotlinx.datetime)
 }
