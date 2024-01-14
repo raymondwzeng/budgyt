@@ -137,7 +137,7 @@ class BudgetOverviewViewModel(
                         budgyt = store,
                         currentDate = currentDate.value
                     )
-                }.toContainerList()
+                }.toContainerList().sortedBy { container -> container.containerType }
         }
     }
 

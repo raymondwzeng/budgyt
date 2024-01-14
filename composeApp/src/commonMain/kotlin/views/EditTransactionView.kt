@@ -65,7 +65,7 @@ fun EditTransactionView(component: EditTransactionComponent) {
     val showDateSelectionDialog = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     coroutineScope.launch { //TODO: Code smell. This should only be ran once but runs every recomposition
-        bucketList.value = component.getBuckets()
+        bucketList.value = component.getBuckets().sortedBy { bucket -> bucket.bucketType }
     }
     LaunchedEffect(bucketList.value) {
         currentBucket.value = bucketList.value.find { bucket -> bucket.id == component.currentTransaction?.bucketId }
