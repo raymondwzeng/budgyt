@@ -6,7 +6,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.primarySurface
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -66,9 +65,12 @@ fun App(deviceType: DeviceType, component: BaseViewModel) {
                         }
                     },
                     actions = {
-                        IconButton(onClick = {
-                            showPullDialog.value = true
-                        }, enabled = child.value.items.size == 1) { //Make sure that sync is only available on root screen
+                        IconButton(
+                            onClick = {
+                                showPullDialog.value = true
+                            },
+                            enabled = child.value.items.size == 1
+                        ) { //Make sure that sync is only available on root screen
                             Icon(
                                 Icons.Filled.Sync,
                                 contentDescription = "Pull changes from remote database",

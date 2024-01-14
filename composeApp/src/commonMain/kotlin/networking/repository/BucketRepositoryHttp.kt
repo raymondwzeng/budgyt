@@ -14,7 +14,8 @@ import repository.BucketRepository
 import java.util.UUID
 
 val BUCKET_ENDPOINT = "$RemoteHost/buckets"
-class BucketRepositoryHttp(private val client: HttpClient): BucketRepository {
+
+class BucketRepositoryHttp(private val client: HttpClient) : BucketRepository {
     override suspend fun addBucket(bucket: Bucket): Result<Bucket> {
         val response = client.request(BUCKET_ENDPOINT) {
             method = HttpMethod.Post

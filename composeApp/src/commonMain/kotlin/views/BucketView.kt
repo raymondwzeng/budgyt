@@ -25,7 +25,9 @@ import kotlinx.coroutines.launch
 import models.Transaction
 import viewmodels.DetailsComponent
 
-const val BUCKET_DELETION_DIALOG = "Are you sure that you want to remove this bucket? All associated transactions will also be removed!"
+const val BUCKET_DELETION_DIALOG =
+    "Are you sure that you want to remove this bucket? All associated transactions will also be removed!"
+
 @Composable
 fun BucketView(component: DetailsComponent) {
     val bucketState = component.bucketModel.subscribeAsState()
@@ -42,7 +44,10 @@ fun BucketView(component: DetailsComponent) {
             deletionConfirmationState.value = false
         })
     }
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize().padding(16.dp)
+    ) {
         Text(text = bucketState.value.bucketName, fontSize = 32.sp)
         Text(text = "Estimated: ${GLOBAL_FORMATTER.format(bucketState.value.estimatedAmount.toDouble())}")
         Text(text = "Current Total: ${GLOBAL_FORMATTER.format(bucketState.value.transactions.sumOf { transaction -> transaction.transactionAmount })}")

@@ -19,7 +19,10 @@ interface BucketRepository {
     suspend fun getBucketById(bucketId: UUID): Result<Bucket>
 }
 
-class BucketRepositoryImpl(private val budgyt: budgyt, private val coroutineDispatcher: CoroutineDispatcher) :
+class BucketRepositoryImpl(
+    private val budgyt: budgyt,
+    private val coroutineDispatcher: CoroutineDispatcher
+) :
     BucketRepository {
     override suspend fun addBucket(bucket: Bucket): Result<Bucket> {
         return withContext(coroutineDispatcher) {
@@ -54,8 +57,8 @@ class BucketRepositoryImpl(private val budgyt: budgyt, private val coroutineDisp
             )
             return@withContext budgyt.bucketQueries.getBucketById(updatedBucket.id)
                 .executeAsOneOrNull()?.let { bucket ->
-                Result.success(bucket.toApplicationDataModel(budgyt))
-            } ?: Result.failure(Exception("Failed to update bucket $updatedBucket"))
+                    Result.success(bucket.toApplicationDataModel(budgyt))
+                } ?: Result.failure(Exception("Failed to update bucket $updatedBucket"))
         }
     }
 

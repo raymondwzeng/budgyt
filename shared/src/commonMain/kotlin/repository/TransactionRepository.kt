@@ -110,8 +110,9 @@ class TransactionRepositoryImpl(val budgyt: budgyt, val coroutineDispatcher: Cor
 
     override suspend fun getTransactionById(transactionId: UUID): Result<Transaction> {
         return withContext(coroutineDispatcher) {
-            val transaction = budgyt.transactionQueries.getTransactionById(transactionId).executeAsOneOrNull()
-            if(transaction == null) {
+            val transaction =
+                budgyt.transactionQueries.getTransactionById(transactionId).executeAsOneOrNull()
+            if (transaction == null) {
                 return@withContext Result.failure(Throwable("Unable to find transaction with that ID $transactionId"))
             } else {
                 return@withContext Result.success(transaction.toApplicationDataModel())

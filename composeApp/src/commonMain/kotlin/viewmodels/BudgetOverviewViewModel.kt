@@ -112,9 +112,10 @@ class BudgetOverviewViewModel(
                 if (result.find { searchBucket -> searchBucket.id == bucket.id } == null) {
                     bucketRepository.deleteBucket(bucket.id)
                 }
-                val localTransactions = transactionRepository.getTransactionsForBucketId(bucket.id).getOrThrow()
-                localTransactions.forEach {transaction ->  //Remove transactions that don't exist in our upstream
-                    if(bucket.transactions.find { searchTransaction -> searchTransaction.id == transaction.id } == null) {
+                val localTransactions =
+                    transactionRepository.getTransactionsForBucketId(bucket.id).getOrThrow()
+                localTransactions.forEach { transaction ->  //Remove transactions that don't exist in our upstream
+                    if (bucket.transactions.find { searchTransaction -> searchTransaction.id == transaction.id } == null) {
                         transactionRepository.deleteTransaction(transaction.id)
                     }
                 }

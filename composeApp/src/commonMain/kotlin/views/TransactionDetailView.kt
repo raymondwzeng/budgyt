@@ -33,7 +33,7 @@ fun TransactionDetailView(component: TransactionDetailsComponent) {
     val deletionConfirmationState = remember { mutableStateOf(false) }
     val transaction = component.transactionModel.subscribeAsState()
     val coroutineScope = rememberCoroutineScope()
-    if(deletionConfirmationState.value) {
+    if (deletionConfirmationState.value) {
         DeletionConfirmationDialog(text = TRANSACTION_DELETION_DIALOG, onConfirm = {
             coroutineScope.launch {
                 component.deleteTransaction(transaction = transaction.value)
@@ -42,7 +42,12 @@ fun TransactionDetailView(component: TransactionDetailsComponent) {
         }, onDismissRequest = { deletionConfirmationState.value = false })
     }
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(16.dp)) {
-        Text(text = "Transaction Details", fontWeight = FontWeight.Bold, fontSize = 32.sp, modifier = Modifier.padding(vertical = 8.dp))
+        Text(
+            text = "Transaction Details",
+            fontWeight = FontWeight.Bold,
+            fontSize = 32.sp,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
             Text(text = "Date of transaction:", fontWeight = FontWeight.Bold)
             Text(text = transaction.value.transactionDate.toString())

@@ -36,7 +36,7 @@ class DefaultTransactionDetailsComponent(
         transactionRepository.deleteTransaction(transaction.id)
         try {
             transactionRepositoryHttp.deleteTransaction(transaction.id)
-        } catch(exception: Exception) {
+        } catch (exception: Exception) {
             println("EXCEPTION: ${exception.message}")
         }
         onDeleteTransaction(transaction.bucketId)

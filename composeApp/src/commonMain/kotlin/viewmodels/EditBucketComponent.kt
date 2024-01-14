@@ -32,7 +32,11 @@ class DefaultEditBucketComponent(
     private val bucketRepositoryHttp: BucketRepositoryHttp,
     val onAddBucket: (bucketId: UUID) -> Unit
 ) : EditBucketComponent, ComponentContext by componentContext {
-    override suspend fun addBucket(bucketName: String, bucketType: BucketType, bucketEstimate: BigDecimal) {
+    override suspend fun addBucket(
+        bucketName: String,
+        bucketType: BucketType,
+        bucketEstimate: BigDecimal
+    ) {
         val newBucket = Bucket(
             id = UUID.randomUUID(),
             bucketName = bucketName,

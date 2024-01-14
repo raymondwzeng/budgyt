@@ -49,7 +49,7 @@ fun Route.buckets(repository: BucketRepository) {
         delete {
             val bucketId = call.receive<UUID>()
             val result = repository.deleteBucket(bucketId)
-            if(result) {
+            if (result) {
                 call.respond(true)
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Failed to delete bucket of ID $bucketId")

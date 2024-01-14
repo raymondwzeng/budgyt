@@ -22,8 +22,20 @@ import returnMonetaryValueColor
 fun TransactionItem(modifier: Modifier = Modifier, transaction: Transaction, onClick: () -> Unit) {
     Card(modifier = modifier, elevation = 4.dp, onClick = onClick) {
         Column(modifier = Modifier.fillMaxSize().padding(4.dp)) {
-            Text(text = transaction.transactionDate.toString(), fontSize = 12.sp, fontWeight = FontWeight.Light)
-            Text(text = GLOBAL_FORMATTER.format(transaction.transactionAmount), fontSize = 18.sp, textAlign = TextAlign.End, color = returnMonetaryValueColor(value = transaction.transactionAmount, defaultPositiveColor = MaterialTheme.colors.onBackground))
+            Text(
+                text = transaction.transactionDate.toString(),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Light
+            )
+            Text(
+                text = GLOBAL_FORMATTER.format(transaction.transactionAmount),
+                fontSize = 18.sp,
+                textAlign = TextAlign.End,
+                color = returnMonetaryValueColor(
+                    value = transaction.transactionAmount,
+                    defaultPositiveColor = MaterialTheme.colors.onBackground
+                )
+            )
             Text(text = transaction.note)
         }
     }
