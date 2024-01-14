@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./composeApp/src/commonMain/resources/logo.png" width="64px" alt="Budgyt Logo"/>
+</p>
+
 # Budgyt
 A simple but sophisticated budgeting app, built for the Kotlin Multiplatform Contest 2024.
 
