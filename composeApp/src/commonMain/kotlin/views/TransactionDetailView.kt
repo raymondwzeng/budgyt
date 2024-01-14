@@ -6,14 +6,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -53,13 +57,13 @@ fun TransactionDetailView(component: TransactionDetailsComponent) {
         }
         Button(onClick = {
             component.navigateToEditTransactionDetails(transaction.value)
-        }) {
-            Text(text = "Update Transaction")
+        }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colors.primary)) {
+            Text(text = "Update Transaction", color = MaterialTheme.colors.onPrimary)
         }
         Button(onClick = {
             deletionConfirmationState.value = !deletionConfirmationState.value
-        }) {
-            Text(text = "Delete Transaction")
+        }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colors.primary)) {
+            Text(text = "Delete Transaction", color = MaterialTheme.colors.onPrimary)
         }
     }
 }
