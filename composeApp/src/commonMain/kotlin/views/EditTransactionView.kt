@@ -21,6 +21,7 @@ import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -57,12 +58,19 @@ fun EditTransactionView(component: EditTransactionComponent) {
                 System.currentTimeMillis()
             }, initialDisplayMode = DisplayMode.Input
         )
+    val bucketList = remember { mutableStateOf(listOf<Bucket>()) }
     val currentBucket =
-        remember { mutableStateOf(component.listBuckets.find { bucket -> bucket.id == component.currentTransaction?.bucketId }) }
+        remember { mutableStateOf(bucketList.value.find { bucket -> bucket.id == component.currentTransaction?.bucketId }) }
     val bucketDropdownExpanded = remember { mutableStateOf(false) }
     val showDateSelectionDialog = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    coroutineScope.launch { //TODO: Code smell. This should only be ran once but runs every recomposition
+        bucketList.value = component.getBuckets()
+    }
+    LaunchedEffect(bucketList.value) {
+        currentBucket.value = bucketList.value.find { bucket -> bucket.id == component.currentTransaction?.bucketId }
+    }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
         //TODO: Component-ize
         Text(text = "Bucket", fontSize = 24.sp)
         Surface {
@@ -86,7 +94,7 @@ fun EditTransactionView(component: EditTransactionComponent) {
                 expanded = bucketDropdownExpanded.value,
                 onDismissRequest = { bucketDropdownExpanded.value = false }
             ) {
-                component.listBuckets.forEach { bucket ->
+                bucketList.value.forEach { bucket ->
                     BucketDropdown(bucket, onClick = {
                         currentBucket.value = bucket
                         bucketDropdownExpanded.value = false

@@ -13,6 +13,7 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
 import com.technology626.budgyt.budgyt
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,6 +28,13 @@ import models.Transaction
 import models.toApplicationDataModel
 import models.toApplicationDataModelOfMonth
 import models.toContainerList
+import networking.BudgytHttpClient
+import networking.repository.BucketRepositoryHttp
+import networking.repository.TransactionRepositoryHttp
+import repository.BucketRepository
+import repository.BucketRepositoryImpl
+import repository.TransactionRepository
+import repository.TransactionRepositoryImpl
 import java.util.UUID
 
 interface BaseViewModel {
@@ -55,7 +63,10 @@ interface BaseViewModel {
 class BudgetOverviewViewModel(
     componentContext: ComponentContext,
     database: budgyt,
-    val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val transactionRepository: TransactionRepository = TransactionRepositoryImpl(database, coroutineDispatcher),
+    private val bucketRepository: BucketRepository = BucketRepositoryImpl(database, coroutineDispatcher),
+    private val httpClient: HttpClient = BudgytHttpClient
 ) : BaseViewModel,
     ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
@@ -64,6 +75,9 @@ class BudgetOverviewViewModel(
     override val cache = MutableValue(emptyList<Container>())
 
     override val store by lazy { database }
+
+    val transactionRepositoryHttp = TransactionRepositoryHttp(httpClient)
+    val bucketRepositoryHttp = BucketRepositoryHttp(httpClient)
 
     init {
         updateCache()
@@ -151,8 +165,7 @@ class BudgetOverviewViewModel(
     ): TransactionDetailsComponent {
         return DefaultTransactionDetailsComponent(
             componentContext = componentContext,
-            database = store,
-            dispatcher = coroutineDispatcher,
+            transactionRepository = transactionRepository,
             transactionModel = MutableValue(transaction),
             onDeleteTransaction = { bucketId ->
                 updateCache()
@@ -196,8 +209,8 @@ class BudgetOverviewViewModel(
     ): EditTransactionComponent {
         return DefaultEditTransactionComponent(
             componentContext = componentContext,
-            dispatcher = coroutineDispatcher,
-            database = store,
+            transactionRepository = transactionRepository,
+            bucketRepository = bucketRepository,
             currentTransaction = transaction,
             onTransactionUpdated = { transactionEditType, transaction ->
                 updateCache()
@@ -232,8 +245,7 @@ class BudgetOverviewViewModel(
         return DefaultDetailsComponent(
             componentContext = componentContext,
             item = MutableValue(config.item),
-            dispatcher = coroutineDispatcher,
-            database = store,
+            bucketRepository = bucketRepository,
             onFinished = {
                 updateCache()
                 navigation.pop()
@@ -254,8 +266,7 @@ class BudgetOverviewViewModel(
         return DefaultEditBucketComponent(
             componentContext = componentContext,
             bucket = bucket,
-            dispatcher = coroutineDispatcher,
-            database = store,
+            bucketRepository = bucketRepository,
             onAddBucket = { bucketId ->
                 updateCache()
                 navigation.pop()
