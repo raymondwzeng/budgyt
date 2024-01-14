@@ -166,6 +166,7 @@ class BudgetOverviewViewModel(
         return DefaultTransactionDetailsComponent(
             componentContext = componentContext,
             transactionRepository = transactionRepository,
+            transactionRepositoryHttp = transactionRepositoryHttp,
             transactionModel = MutableValue(transaction),
             onDeleteTransaction = { bucketId ->
                 updateCache()
@@ -210,7 +211,9 @@ class BudgetOverviewViewModel(
         return DefaultEditTransactionComponent(
             componentContext = componentContext,
             transactionRepository = transactionRepository,
+            transactionRepositoryHttp = transactionRepositoryHttp,
             bucketRepository = bucketRepository,
+            bucketRepositoryHttp = bucketRepositoryHttp,
             currentTransaction = transaction,
             onTransactionUpdated = { transactionEditType, transaction ->
                 updateCache()
@@ -246,6 +249,7 @@ class BudgetOverviewViewModel(
             componentContext = componentContext,
             item = MutableValue(config.item),
             bucketRepository = bucketRepository,
+            bucketRepositoryHttp = bucketRepositoryHttp,
             onFinished = {
                 updateCache()
                 navigation.pop()
@@ -267,6 +271,7 @@ class BudgetOverviewViewModel(
             componentContext = componentContext,
             bucket = bucket,
             bucketRepository = bucketRepository,
+            bucketRepositoryHttp = bucketRepositoryHttp,
             onAddBucket = { bucketId ->
                 updateCache()
                 navigation.pop()

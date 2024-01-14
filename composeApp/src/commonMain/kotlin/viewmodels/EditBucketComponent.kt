@@ -6,10 +6,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import models.Bucket
 import models.BucketType
+import networking.repository.BucketRepositoryHttp
 import repository.BucketRepository
 import repository.TransactionRepository
 import java.math.BigDecimal
 import java.util.UUID
+import java.util.logging.Logger
 
 interface EditBucketComponent {
     val bucket: Bucket?
@@ -27,6 +29,7 @@ class DefaultEditBucketComponent(
     componentContext: ComponentContext,
     override val bucket: Bucket?,
     private val bucketRepository: BucketRepository,
+    private val bucketRepositoryHttp: BucketRepositoryHttp,
     val onAddBucket: (bucketId: UUID) -> Unit
 ) : EditBucketComponent, ComponentContext by componentContext {
     override suspend fun addBucket(bucketName: String, bucketType: BucketType, bucketEstimate: BigDecimal) {
@@ -38,6 +41,11 @@ class DefaultEditBucketComponent(
             transactions = emptyList()
         )
         bucketRepository.addBucket(newBucket)
+        try {
+            bucketRepositoryHttp.addBucket(newBucket)
+        } catch (exception: Exception) {
+            //TODO: Log exception so that it's easier to catch errors
+        }
         onAddBucket(newBucket.id)
     }
 
@@ -55,6 +63,11 @@ class DefaultEditBucketComponent(
             transactions = emptyList()
         )
         bucketRepository.editBucket(updatedBucket)
+        try {
+            bucketRepositoryHttp.editBucket(updatedBucket)
+        } catch (exception: Exception) {
+            //TODO: Log exception so that it's easier to catch errors
+        }
         onAddBucket(bucketId)
     }
 }

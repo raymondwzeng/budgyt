@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import models.Bucket
 import models.Transaction
+import networking.repository.BucketRepositoryHttp
 import repository.BucketRepository
 import repository.TransactionRepository
 
@@ -23,6 +24,7 @@ class DefaultDetailsComponent(
     componentContext: ComponentContext,
     item: MutableValue<Bucket>,
     val bucketRepository: BucketRepository,
+    private val bucketRepositoryHttp: BucketRepositoryHttp,
     private val onNavigateToTransactionDetails: (transaction: Transaction) -> Unit,
     private val onNavigateToEditBucket: (bucket: Bucket) -> Unit,
     val onFinished: () -> Unit
@@ -38,6 +40,11 @@ class DefaultDetailsComponent(
 
     override suspend fun removeBucket() {
         bucketRepository.deleteBucket(bucketModel.value.id)
+        try {
+            bucketRepositoryHttp.deleteBucket(bucketModel.value.id)
+        } catch (exception: Exception) {
+            //TODO: Log exception so that it's easier to catch errors
+        }
         onFinished()
     }
 }

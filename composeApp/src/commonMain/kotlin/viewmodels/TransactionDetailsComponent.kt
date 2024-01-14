@@ -6,6 +6,7 @@ import com.technology626.budgyt.budgyt
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import models.Transaction
+import networking.repository.TransactionRepositoryHttp
 import repository.TransactionRepository
 import java.util.UUID
 
@@ -19,6 +20,7 @@ interface TransactionDetailsComponent {
 class DefaultTransactionDetailsComponent(
     componentContext: ComponentContext,
     private val transactionRepository: TransactionRepository,
+    private val transactionRepositoryHttp: TransactionRepositoryHttp,
     transactionModel: MutableValue<Transaction>,
     private val onNavigateToEditTransactionDetails: (transaction: Transaction) -> Unit,
     private val onDeleteTransaction: suspend (bucketId: UUID) -> Unit
@@ -32,6 +34,11 @@ class DefaultTransactionDetailsComponent(
 
     override suspend fun deleteTransaction(transaction: Transaction) {
         transactionRepository.deleteTransaction(transaction.id)
+        try {
+            transactionRepositoryHttp.deleteTransaction(transaction.id)
+        } catch(e: Exception) {
+            //TODO: Log exception so that it's easier to catch errors
+        }
         onDeleteTransaction(transaction.bucketId)
     }
 

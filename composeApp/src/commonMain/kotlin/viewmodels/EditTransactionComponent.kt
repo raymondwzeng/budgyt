@@ -8,6 +8,8 @@ import kotlinx.datetime.LocalDate
 import models.Bucket
 import models.Transaction
 import models.toApplicationDataModel
+import networking.repository.BucketRepositoryHttp
+import networking.repository.TransactionRepositoryHttp
 import repository.BucketRepository
 import repository.TransactionRepository
 import java.math.BigDecimal
@@ -40,12 +42,18 @@ class DefaultEditTransactionComponent(
     componentContext: ComponentContext,
     override val currentTransaction: Transaction?,
     private val transactionRepository: TransactionRepository,
+    private val transactionRepositoryHttp: TransactionRepositoryHttp,
     private val bucketRepository: BucketRepository,
+    private val bucketRepositoryHttp: BucketRepositoryHttp,
     private val onTransactionUpdated: suspend (editType: TransactionEditType, transaction: Transaction) -> Unit,
 ) : EditTransactionComponent,
     ComponentContext by componentContext {
     override suspend fun getBuckets(): List<Bucket> {
-        return bucketRepository.getBuckets().getOrDefault(emptyList())
+        return try {
+            bucketRepositoryHttp.getBuckets().getOrThrow()
+        } catch (exception: Exception) {
+            bucketRepository.getBuckets().getOrDefault(emptyList())
+        }
     }
 
     override suspend fun createTransaction(
@@ -63,6 +71,11 @@ class DefaultEditTransactionComponent(
             transactionDate = transactionDate
         )
         transactionRepository.addTransaction(newTransaction)
+        try {
+            transactionRepositoryHttp.addTransaction(newTransaction)
+        } catch(e: Exception) {
+            //TODO: Log exception so that it's easier to catch errors
+        }
         onTransactionUpdated(TransactionEditType.CREATE, newTransaction)
     }
 
@@ -70,12 +83,22 @@ class DefaultEditTransactionComponent(
         updatedTransaction: Transaction
     ) {
         transactionRepository.updateTransaction(updatedTransaction)
+        try {
+            transactionRepositoryHttp.updateTransaction(updatedTransaction)
+        } catch(e: Exception) {
+            //TODO: Log exception so that it's easier to catch errors
+        }
         onTransactionUpdated(TransactionEditType.UPDATE, updatedTransaction)
     }
 
     override suspend fun deleteTransaction(transactionId: UUID) {
         lateinit var transaction: Transaction
         transactionRepository.deleteTransaction(transactionId)
+        try {
+            transactionRepositoryHttp.deleteTransaction(transactionId)
+        } catch(e: Exception) {
+            //TODO: Log exception so that it's easier to catch errors
+        }
         onTransactionUpdated(
             TransactionEditType.DELETE,
             transaction
