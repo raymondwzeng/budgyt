@@ -1,5 +1,8 @@
 package viewmodels
 
+import androidx.compose.runtime.collectAsState
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
@@ -16,6 +19,10 @@ import com.technology626.budgyt.budgyt
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.publish
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -48,6 +55,8 @@ interface BaseViewModel {
 
     fun navigateToAddBucket()
 
+    suspend fun pullCacheFromRemoteEndpoint()
+
     sealed class Child {
         class ListChild(val component: ListComponent) : Child()
         class BucketDetailsChild(val component: DetailsComponent) : Child()
@@ -64,8 +73,14 @@ class BudgetOverviewViewModel(
     componentContext: ComponentContext,
     database: budgyt,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
-    private val transactionRepository: TransactionRepository = TransactionRepositoryImpl(database, coroutineDispatcher),
-    private val bucketRepository: BucketRepository = BucketRepositoryImpl(database, coroutineDispatcher),
+    private val transactionRepository: TransactionRepository = TransactionRepositoryImpl(
+        database,
+        coroutineDispatcher
+    ),
+    private val bucketRepository: BucketRepository = BucketRepositoryImpl(
+        database,
+        coroutineDispatcher
+    ),
     httpClient: HttpClient = BudgytHttpClient
 ) : BaseViewModel,
     ComponentContext by componentContext {
@@ -94,6 +109,43 @@ class BudgetOverviewViewModel(
 
     override fun onBackClicked(toIndex: Int) {
         navigation.popTo(toIndex)
+    }
+
+    override suspend fun pullCacheFromRemoteEndpoint() {
+        try {
+            val currentCache = bucketRepository.getBuckets().getOrThrow()
+            val result = bucketRepositoryHttp.getBuckets().getOrThrow()
+            currentCache.forEach { bucket -> //Remove buckets that don't exist within our upstream source
+                if (result.find { searchBucket -> searchBucket.id == bucket.id } == null) {
+                    bucketRepository.deleteBucket(bucket.id)
+                }
+                val localTransactions = transactionRepository.getTransactionsForBucketId(bucket.id).getOrThrow()
+                localTransactions.forEach {transaction ->  //Remove transactions that don't exist in our upstream
+                    if(bucket.transactions.find { searchTransaction -> searchTransaction.id == transaction.id } == null) {
+                        transactionRepository.deleteTransaction(transaction.id)
+                    }
+                }
+            }
+            for (bucket in result) {
+                if (currentCache.find { searchBucket -> searchBucket.id == bucket.id } == null) { //Add bucket if it doesn't exist. Could be replicated with an UPSERT statement.
+                    bucketRepository.addBucket(bucket)
+                } else {
+                    bucketRepository.editBucket(bucket)
+                }
+                val transactions =
+                    transactionRepository.getTransactionsForBucketId(bucket.id).getOrThrow()
+                bucket.transactions.forEach { transaction -> //Similar upsert logic to above
+                    if (transactions.find { searchTransaction -> searchTransaction.id == transaction.id } == null) {
+                        transactionRepository.addTransaction(transaction)
+                    } else {
+                        transactionRepository.updateTransaction(transaction)
+                    }
+                }
+            }
+            updateCache()
+        } catch (exception: Exception) {
+            println("Error while updating cache: ${exception.message}")
+        }
     }
 
     private fun child(config: Config, componentContext: ComponentContext): BaseViewModel.Child {

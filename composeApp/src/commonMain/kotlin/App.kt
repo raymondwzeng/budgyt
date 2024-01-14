@@ -7,6 +7,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.primarySurface
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,11 +15,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import components.AddItemFloatingActionButton
+import kotlinx.coroutines.launch
 import viewmodels.BaseViewModel
 import views.BucketView
 import views.ContainerView
@@ -35,6 +38,7 @@ enum class DeviceType {
 @Composable
 fun App(deviceType: DeviceType, component: BaseViewModel) {
     val child = component.callstack.subscribeAsState()
+    val coroutineScope = rememberCoroutineScope()
     MaterialTheme {
         Scaffold(
             topBar = {
@@ -56,12 +60,21 @@ fun App(deviceType: DeviceType, component: BaseViewModel) {
                                 tint = if (child.value.items.size > 1) MaterialTheme.colors.onPrimary else Color.LightGray
                             )
                         }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            coroutineScope.launch {
+                                component.pullCacheFromRemoteEndpoint()
+                            }
+                        }) { //TODO: Dialog confirmation - this is a destructive change!
+                            Icon(
+                                Icons.Filled.ArrowDownward,
+                                contentDescription = "Pull changes from remote database"
+                            )
+                        }
                     }
                 )
             },
-            floatingActionButton = {
-
-            }
         ) { innerPadding ->
             Column(
                 modifier = Modifier.fillMaxSize().padding(innerPadding),
