@@ -1,5 +1,6 @@
 package networking.repository
 
+import RemoteHost
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.parameter
@@ -10,11 +11,10 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import kotlinx.datetime.LocalDate
 import models.Transaction
-import networking.REMOTE_ENDPOINT
 import repository.TransactionRepository
 import java.util.UUID
 
-const val TRANSACTION_ENDPOINT = "$REMOTE_ENDPOINT/transactions"
+val TRANSACTION_ENDPOINT = "$RemoteHost/transactions"
 
 class TransactionRepositoryHttp(private val client: HttpClient): TransactionRepository {
     override suspend fun addTransaction(transaction: Transaction): Result<Transaction> {

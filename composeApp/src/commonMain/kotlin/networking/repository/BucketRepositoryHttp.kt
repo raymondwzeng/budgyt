@@ -1,5 +1,6 @@
 package networking.repository
 
+import RemoteHost
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.parameter
@@ -9,12 +10,10 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import models.Bucket
-import models.Transaction
-import networking.REMOTE_ENDPOINT
 import repository.BucketRepository
 import java.util.UUID
 
-const val BUCKET_ENDPOINT = "$REMOTE_ENDPOINT/buckets"
+val BUCKET_ENDPOINT = "$RemoteHost/buckets"
 class BucketRepositoryHttp(private val client: HttpClient): BucketRepository {
     override suspend fun addBucket(bucket: Bucket): Result<Bucket> {
         val response = client.request(BUCKET_ENDPOINT) {
@@ -26,7 +25,7 @@ class BucketRepositoryHttp(private val client: HttpClient): BucketRepository {
     }
 
     override suspend fun getBuckets(): Result<List<Bucket>> {
-        val response = client.request(TRANSACTION_ENDPOINT) {
+        val response = client.request(BUCKET_ENDPOINT) {
             method = HttpMethod.Get
         }.body<List<Bucket>>()
         return Result.success(response)

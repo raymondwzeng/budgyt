@@ -1,8 +1,5 @@
 package viewmodels
 
-import androidx.compose.runtime.collectAsState
-import app.cash.sqldelight.coroutines.asFlow
-import app.cash.sqldelight.coroutines.mapToList
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
@@ -19,10 +16,6 @@ import com.technology626.budgyt.budgyt
 import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.publish
-import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -144,7 +137,7 @@ class BudgetOverviewViewModel(
             }
             updateCache()
         } catch (exception: Exception) {
-            println("Error while updating cache: ${exception.message}")
+            println("Error while updating cache: $exception")
         }
     }
 
