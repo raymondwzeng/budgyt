@@ -2,9 +2,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import createDatabase
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import viewmodels.BudgetOverviewViewModel
 import javax.swing.SwingUtilities
-import createDatabase
 
 internal fun <T> runOnUiThread(block: () -> T): T {
     if (SwingUtilities.isEventDispatchThread()) {
@@ -28,6 +30,7 @@ internal fun <T> runOnUiThread(block: () -> T): T {
     return result as T
 }
 
+@OptIn(ExperimentalResourceApi::class)
 fun main() = application {
     val lifecycle = LifecycleRegistry()
 
@@ -38,7 +41,11 @@ fun main() = application {
         )
     }
 
-    Window(onCloseRequest = ::exitApplication) {
+    Window(
+        title = "Budgyt Desktop",
+        icon = painterResource("logo.png"),
+        onCloseRequest = ::exitApplication
+    ) {
         App(DeviceType.DESKTOP, root)
     }
 }
