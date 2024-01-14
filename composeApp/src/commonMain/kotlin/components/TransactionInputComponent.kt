@@ -27,22 +27,24 @@ fun TransactionInputComponent(
         singleLine = true,
         onValueChange = { newAmount ->
             var updatedValue = value
-            if (newAmount.text.length - newAmount.text.indexOfFirst { char -> char == '.' } <= 2) {
-                updatedValue = updatedValue.movePointLeft(1) //We need to force the scale to be 2?
-                updatedValue = updatedValue.setScale(2, RoundingMode.DOWN)
-            } else {
-                val lastCharacter = newAmount.text[newAmount.text.length - 1]
-                if (lastCharacter.isDigit()) {
-                    updatedValue =
-                        updatedValue.movePointRight(1) //No need to update scale when moving right.
-                    val newValue = BigDecimal("0.0$lastCharacter")
-                    if (updatedValue >= BigDecimal(0)) {
-                        updatedValue += newValue
-                    } else {
-                        updatedValue -= newValue
+            if(newAmount.text != formatted) {
+                if (newAmount.text.length - newAmount.text.indexOfFirst { char -> char == '.' } <= 2) {
+                    updatedValue = updatedValue.movePointLeft(1) //We need to force the scale to be 2?
+                    updatedValue = updatedValue.setScale(2, RoundingMode.DOWN)
+                } else {
+                    val lastCharacter = newAmount.text[newAmount.text.length - 1]
+                    if (lastCharacter.isDigit()) {
+                        updatedValue =
+                            updatedValue.movePointRight(1) //No need to update scale when moving right.
+                        val newValue = BigDecimal("0.0$lastCharacter")
+                        if (updatedValue >= BigDecimal(0)) {
+                            updatedValue += newValue
+                        } else {
+                            updatedValue -= newValue
+                        }
+                    } else if (lastCharacter == '-') {
+                        updatedValue = updatedValue.negate()
                     }
-                } else if (lastCharacter == '-') {
-                    updatedValue = updatedValue.negate()
                 }
             }
             onInputChange(updatedValue)
