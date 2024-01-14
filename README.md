@@ -14,7 +14,7 @@ It turns out, Kotlin Multiplatform solved most of these problems.
 This is a Kotlin Multiplatform project targeting Android, Desktop, Server.
 
 ## Demonstration
-![Budgyt Demo Video](Budgyt_Demo.mov)
+![Budgyt Demo GIF](Budgyt_Demo_GIF.gif)
 
 ### Screenshots
 ![Budgyt Root View](Budgyt-Root-View.png)
