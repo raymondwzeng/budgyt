@@ -21,11 +21,13 @@ kotlin {
             // put your Multiplatform dependencies here
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
         }
         androidMain.dependencies {
             implementation("app.cash.sqldelight:android-driver:2.0.1")
         }
         jvmMain.dependencies {
+            implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.3.6")
             implementation("app.cash.sqldelight:sqlite-driver:2.0.1")
         }
     }

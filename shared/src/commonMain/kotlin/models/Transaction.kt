@@ -15,7 +15,7 @@ data class Transaction(
     val note: String,
     val transactionDate: LocalDate,
     @Serializable(with = JavaUUIDSerializer::class)
-    val bucketId: UUID?
+    val bucketId: UUID
 )
 
 fun BudgetTransaction.toApplicationDataModel(): Transaction {

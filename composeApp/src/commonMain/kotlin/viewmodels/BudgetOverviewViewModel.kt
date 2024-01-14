@@ -52,7 +52,11 @@ interface BaseViewModel {
     }
 }
 
-class BudgetOverviewViewModel(componentContext: ComponentContext, database: budgyt, val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO) : BaseViewModel,
+class BudgetOverviewViewModel(
+    componentContext: ComponentContext,
+    database: budgyt,
+    val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
+) : BaseViewModel,
     ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
 
@@ -171,7 +175,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             },
             onUpdateCurrentDate = { month, year ->
                 currentDate.update {
-                    LocalDate(year = year, monthNumber = month,  dayOfMonth = 1)
+                    LocalDate(year = year, monthNumber = month, dayOfMonth = 1)
                 }
                 updateCache()
             }
@@ -195,7 +199,7 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
             dispatcher = coroutineDispatcher,
             database = store,
             currentTransaction = transaction,
-            onTransactionUpdated = { transactionEditType, transactionId, bucketId ->
+            onTransactionUpdated = { transactionEditType, transaction ->
                 updateCache()
                 navigation.pop()
                 when (transactionEditType) {
@@ -205,15 +209,15 @@ class BudgetOverviewViewModel(componentContext: ComponentContext, database: budg
                         if (top is BaseViewModel.Child.TransactionDetailsChild) {
                             top.component.transactionModel.update {
                                 store.transactionQueries.getTransactionById(
-                                    transactionId
+                                    transaction.id
                                 ).executeAsOne().toApplicationDataModel()
                             }
                         }
-                        updateBucketInCallstack(bucketId)
+                        updateBucketInCallstack(transaction.bucketId)
                     }
 
                     TransactionEditType.DELETE -> {
-                        updateBucketInCallstack(bucketId = bucketId)
+                        updateBucketInCallstack(bucketId = transaction.bucketId)
                         navigation.pop()
                     }
                 }

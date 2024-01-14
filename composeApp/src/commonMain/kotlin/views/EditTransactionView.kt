@@ -140,7 +140,7 @@ fun EditTransactionView(component: EditTransactionComponent) {
                 if (selectedBucket != null) {
                     coroutineScope.launch {
                         component.updateTransaction(
-                            selectedBucket.id, transaction, transaction.copy(
+                            transaction.copy(
                                 transactionAmount = transactionAmount.value,
                                 transactionDate = Instant.fromEpochMilliseconds(
                                     transactionDate.selectedDateMillis ?: 0
@@ -148,7 +148,8 @@ fun EditTransactionView(component: EditTransactionComponent) {
                                     .toLocalDateTime(
                                         TimeZone.UTC
                                     ).date,
-                                note = transactionNote.value
+                                note = transactionNote.value,
+                                bucketId = selectedBucket.id
                             )
                         )
                     }
