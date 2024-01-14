@@ -4,9 +4,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +29,8 @@ fun EditBucketView(component: EditBucketComponent) {
     val bucketName = remember { mutableStateOf(component.bucket?.bucketName ?: "") }
     val bucketType = remember { mutableStateOf(component.bucket?.bucketType ?: BucketType.INFLOW) }
     val bucketTypeExpanded = remember { mutableStateOf(false) }
-    val bucketEstimateAmount = remember { mutableStateOf(component.bucket?.estimatedAmount ?: BigDecimal(0.0)) }
+    val bucketEstimateAmount =
+        remember { mutableStateOf(component.bucket?.estimatedAmount ?: BigDecimal(0.0)) }
     val coroutineScope = rememberCoroutineScope()
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = "Bucket Name", fontSize = 24.sp)
@@ -39,10 +45,20 @@ fun EditBucketView(component: EditBucketComponent) {
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = {
-                    Button(onClick = {
+                    IconButton(onClick = {
                         bucketTypeExpanded.value = !bucketTypeExpanded.value
                     }) {
-                        Text(">")
+                        if (bucketTypeExpanded.value) {
+                            Icon(
+                                Icons.Default.ExpandLess,
+                                contentDescription = "Collapse bucket type selector dropdown"
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.ExpandMore,
+                                contentDescription = "Expand bucket type selector dropdown"
+                            )
+                        }
                     }
                 }
             )
@@ -64,7 +80,7 @@ fun EditBucketView(component: EditBucketComponent) {
         TransactionInputComponent(value = bucketEstimateAmount.value, onInputChange = { newAmount ->
             bucketEstimateAmount.value = newAmount
         })
-        if(component.bucket == null) {
+        if (component.bucket == null) {
             Button(onClick = {
                 coroutineScope.launch {
                     component.addBucket(
