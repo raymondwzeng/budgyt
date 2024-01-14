@@ -44,7 +44,7 @@ class DefaultEditBucketComponent(
         try {
             bucketRepositoryHttp.addBucket(newBucket)
         } catch (exception: Exception) {
-            //TODO: Log exception so that it's easier to catch errors
+            println("EXCEPTION: ${exception.message}")
         }
         onAddBucket(newBucket.id)
     }
@@ -66,7 +66,7 @@ class DefaultEditBucketComponent(
         try {
             bucketRepositoryHttp.editBucket(updatedBucket)
         } catch (exception: Exception) {
-            //TODO: Log exception so that it's easier to catch errors
+            println("EXCEPTION: ${exception.message}")
         }
         onAddBucket(bucketId)
     }

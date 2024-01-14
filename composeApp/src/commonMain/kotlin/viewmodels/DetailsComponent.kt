@@ -43,7 +43,7 @@ class DefaultDetailsComponent(
         try {
             bucketRepositoryHttp.deleteBucket(bucketModel.value.id)
         } catch (exception: Exception) {
-            //TODO: Log exception so that it's easier to catch errors
+            println("EXCEPTION: ${exception.message}")
         }
         onFinished()
     }

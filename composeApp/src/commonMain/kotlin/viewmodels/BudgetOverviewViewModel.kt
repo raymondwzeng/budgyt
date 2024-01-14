@@ -66,7 +66,7 @@ class BudgetOverviewViewModel(
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val transactionRepository: TransactionRepository = TransactionRepositoryImpl(database, coroutineDispatcher),
     private val bucketRepository: BucketRepository = BucketRepositoryImpl(database, coroutineDispatcher),
-    private val httpClient: HttpClient = BudgytHttpClient
+    httpClient: HttpClient = BudgytHttpClient
 ) : BaseViewModel,
     ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
@@ -76,8 +76,8 @@ class BudgetOverviewViewModel(
 
     override val store by lazy { database }
 
-    val transactionRepositoryHttp = TransactionRepositoryHttp(httpClient)
-    val bucketRepositoryHttp = BucketRepositoryHttp(httpClient)
+    private val transactionRepositoryHttp = TransactionRepositoryHttp(httpClient)
+    private val bucketRepositoryHttp = BucketRepositoryHttp(httpClient)
 
     init {
         updateCache()

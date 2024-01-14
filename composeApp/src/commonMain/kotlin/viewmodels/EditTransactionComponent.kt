@@ -73,8 +73,8 @@ class DefaultEditTransactionComponent(
         transactionRepository.addTransaction(newTransaction)
         try {
             transactionRepositoryHttp.addTransaction(newTransaction)
-        } catch(e: Exception) {
-            //TODO: Log exception so that it's easier to catch errors
+        } catch(exception: Exception) {
+            println("EXCEPTION: ${exception.message}")
         }
         onTransactionUpdated(TransactionEditType.CREATE, newTransaction)
     }
@@ -85,8 +85,8 @@ class DefaultEditTransactionComponent(
         transactionRepository.updateTransaction(updatedTransaction)
         try {
             transactionRepositoryHttp.updateTransaction(updatedTransaction)
-        } catch(e: Exception) {
-            //TODO: Log exception so that it's easier to catch errors
+        } catch(exception: Exception) {
+            println("EXCEPTION: ${exception.message}")
         }
         onTransactionUpdated(TransactionEditType.UPDATE, updatedTransaction)
     }
@@ -96,12 +96,12 @@ class DefaultEditTransactionComponent(
         transactionRepository.deleteTransaction(transactionId)
         try {
             transactionRepositoryHttp.deleteTransaction(transactionId)
-        } catch(e: Exception) {
-            //TODO: Log exception so that it's easier to catch errors
+        } catch(exception: Exception) {
+            println("EXCEPTION: ${exception.message}")
         }
         onTransactionUpdated(
             TransactionEditType.DELETE,
             transaction
-        ) //TODO: Consider refactoring - this is a big dangerous as the transaction technically shouldn't exist anymore
+        ) //TODO: Consider refactoring - this is a bit dangerous as the transaction technically shouldn't exist anymore
     }
 }

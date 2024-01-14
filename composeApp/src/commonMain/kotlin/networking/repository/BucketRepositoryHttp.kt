@@ -5,7 +5,9 @@ import io.ktor.client.call.body
 import io.ktor.client.request.parameter
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
+import io.ktor.http.contentType
 import models.Bucket
 import models.Transaction
 import networking.REMOTE_ENDPOINT
@@ -17,6 +19,7 @@ class BucketRepositoryHttp(private val client: HttpClient): BucketRepository {
     override suspend fun addBucket(bucket: Bucket): Result<Bucket> {
         val response = client.request(BUCKET_ENDPOINT) {
             method = HttpMethod.Post
+            contentType(ContentType.Application.Json)
             setBody(bucket)
         }.body<Bucket>()
         return Result.success(response)
@@ -32,6 +35,7 @@ class BucketRepositoryHttp(private val client: HttpClient): BucketRepository {
     override suspend fun editBucket(updatedBucket: Bucket): Result<Bucket> {
         val response = client.request(BUCKET_ENDPOINT) {
             method = HttpMethod.Patch
+            contentType(ContentType.Application.Json)
             setBody(updatedBucket)
         }.body<Bucket>()
         return Result.success(response)
@@ -40,6 +44,7 @@ class BucketRepositoryHttp(private val client: HttpClient): BucketRepository {
     override suspend fun deleteBucket(bucketId: UUID): Boolean {
         val response = client.request(BUCKET_ENDPOINT) {
             method = HttpMethod.Delete
+            contentType(ContentType.Application.Json)
             setBody(bucketId)
         }.body<Boolean>()
         return response

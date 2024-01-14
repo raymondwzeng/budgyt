@@ -5,7 +5,9 @@ import io.ktor.client.call.body
 import io.ktor.client.request.parameter
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
+import io.ktor.http.contentType
 import kotlinx.datetime.LocalDate
 import models.Transaction
 import networking.REMOTE_ENDPOINT
@@ -18,6 +20,7 @@ class TransactionRepositoryHttp(private val client: HttpClient): TransactionRepo
     override suspend fun addTransaction(transaction: Transaction): Result<Transaction> {
         val response = client.request(TRANSACTION_ENDPOINT) {
             method = HttpMethod.Post
+            contentType(ContentType.Application.Json)
             setBody(transaction)
         }.body<Transaction>()
         return Result.success(response)
@@ -26,6 +29,7 @@ class TransactionRepositoryHttp(private val client: HttpClient): TransactionRepo
     override suspend fun deleteTransaction(transactionId: UUID): Boolean {
         val response = client.request(TRANSACTION_ENDPOINT) {
             method = HttpMethod.Delete
+            contentType(ContentType.Application.Json)
             setBody(transactionId)
         }.body<Boolean>()
         return response
@@ -34,6 +38,7 @@ class TransactionRepositoryHttp(private val client: HttpClient): TransactionRepo
     override suspend fun updateTransaction(updatedTransaction: Transaction): Result<Transaction> {
         val response = client.request(TRANSACTION_ENDPOINT) {
             method = HttpMethod.Patch
+            contentType(ContentType.Application.Json)
             setBody(updatedTransaction)
         }.body<Transaction>()
         return Result.success(response)
