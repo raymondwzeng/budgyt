@@ -1,9 +1,7 @@
 package views
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,8 +12,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +52,7 @@ val months = mapOf(
 )
 
 val years = (2023..Clock.System.todayIn(TimeZone.currentSystemDefault()).year).toList()
+
 @Composable
 fun ContainerView(component: ListComponent) { //Really, this is a bucket of buckets.
     val bucketsState = component.model.subscribeAsState()
@@ -61,10 +65,29 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
     ) {
         Row {
             Card(modifier = Modifier.padding(8.dp)) {
-                Text(
-                    text = dateState.value.month.name,
-                    fontSize = 24.sp,
-                    modifier = Modifier.clickable { changeMonthDropdown.value = !changeMonthDropdown.value })
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, start = 8.dp)) {
+                    Text(
+                        text = dateState.value.month.name,
+                        fontSize = 24.sp
+                    )
+                    IconButton(
+                        onClick = {
+                            changeMonthDropdown.value = !changeMonthDropdown.value
+                        }
+                    ) {
+                        if (changeMonthDropdown.value) {
+                            Icon(
+                                Icons.Default.ExpandLess,
+                                contentDescription = "Collapse Change Month Dropdown"
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.ExpandMore,
+                                contentDescription = "Expand Change Month Dropdown"
+                            )
+                        }
+                    }
+                }
                 if (changeMonthDropdown.value)
                     Surface {
                         DropdownMenu(
@@ -85,10 +108,29 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
             }
 
             Card(modifier = Modifier.padding(8.dp)) {
-                Text(
-                    text = dateState.value.year.toString(),
-                    fontSize = 24.sp,
-                    modifier = Modifier.clickable { changeYearDropdown.value = !changeYearDropdown.value })
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, start = 8.dp)) {
+                    Text(
+                        text = dateState.value.year.toString(),
+                        fontSize = 24.sp
+                    )
+                    IconButton(
+                        onClick = {
+                            changeYearDropdown.value = !changeYearDropdown.value
+                        }
+                    ) {
+                        if (changeYearDropdown.value) {
+                            Icon(
+                                Icons.Default.ExpandLess,
+                                contentDescription = "Collapse Change Year Dropdown"
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.ExpandMore,
+                                contentDescription = "Expand Change Year Dropdown"
+                            )
+                        }
+                    }
+                }
                 if (changeYearDropdown.value)
                     Surface {
                         DropdownMenu(
@@ -112,7 +154,7 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
             inflowContainers = bucketsState.value.filter { container -> container.containerType == BucketType.INFLOW },
             outflowContainers = bucketsState.value.filter { container -> container.containerType == BucketType.OUTFLOW },
             fundContainers = bucketsState.value.filter { container -> container.containerType == BucketType.FUND },
-            )
+        )
         if (bucketsState.value.isEmpty()) {
             Text(text = "No transactions were made within this month.")
         }
