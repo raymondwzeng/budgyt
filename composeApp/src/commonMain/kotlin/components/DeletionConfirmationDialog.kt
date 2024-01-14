@@ -32,7 +32,11 @@ fun DeletionConfirmationDialog(
                 Text(text = "Heads Up!", fontSize = 24.sp)
                 Text(text = text, modifier = Modifier.fillMaxHeight(0.7f), fontSize = 16.sp)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    Text(text = "No", modifier = Modifier.clickable(onClick = onDismissRequest).padding(horizontal = 32.dp))
+                    Text(
+                        text = "No",
+                        modifier = Modifier.clickable(onClick = onDismissRequest)
+                            .padding(horizontal = 32.dp)
+                    )
                     Text(text = "Yes", modifier = Modifier.clickable(onClick = onConfirm))
                 }
             }

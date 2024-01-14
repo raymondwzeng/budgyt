@@ -38,11 +38,12 @@ fun Route.transactions(repository: TransactionRepository) {
                             .onSuccess { transactionList ->
                                 call.respond(transactionList)
                             }.onFailure { error ->
-                            call.respond(HttpStatusCode.BadRequest,
-                                error.message
-                                    ?: "Unable to retrieve transactions for bucket id $bucketId"
-                            )
-                        }
+                                call.respond(
+                                    HttpStatusCode.BadRequest,
+                                    error.message
+                                        ?: "Unable to retrieve transactions for bucket id $bucketId"
+                                )
+                            }
                     } else {
                         val fromDate = LocalDate.parse(fromDateString)
                         val toDate = LocalDate.parse(toDateString)
@@ -50,8 +51,12 @@ fun Route.transactions(repository: TransactionRepository) {
                             .onSuccess { transactionList ->
                                 call.respond(transactionList)
                             }.onFailure { error ->
-                                call.respond(HttpStatusCode.BadRequest, error.message ?: "Unable to retrieve transactions for bucket id $bucketId between $fromDate and $toDate.")
-                        }
+                                call.respond(
+                                    HttpStatusCode.BadRequest,
+                                    error.message
+                                        ?: "Unable to retrieve transactions for bucket id $bucketId between $fromDate and $toDate."
+                                )
+                            }
                     }
                 }
             } catch (exception: Exception) {

@@ -65,7 +65,10 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
     ) {
         Row {
             Card(modifier = Modifier.padding(8.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, start = 8.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, start = 8.dp)
+                ) {
                     Text(
                         text = dateState.value.month.name,
                         fontSize = 24.sp
@@ -108,7 +111,10 @@ fun ContainerView(component: ListComponent) { //Really, this is a bucket of buck
             }
 
             Card(modifier = Modifier.padding(8.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, start = 8.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, start = 8.dp)
+                ) {
                     Text(
                         text = dateState.value.year.toString(),
                         fontSize = 24.sp

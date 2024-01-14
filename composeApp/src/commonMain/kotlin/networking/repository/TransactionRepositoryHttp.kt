@@ -16,7 +16,7 @@ import java.util.UUID
 
 val TRANSACTION_ENDPOINT = "$RemoteHost/transactions"
 
-class TransactionRepositoryHttp(private val client: HttpClient): TransactionRepository {
+class TransactionRepositoryHttp(private val client: HttpClient) : TransactionRepository {
     override suspend fun addTransaction(transaction: Transaction): Result<Transaction> {
         val response = client.request(TRANSACTION_ENDPOINT) {
             method = HttpMethod.Post

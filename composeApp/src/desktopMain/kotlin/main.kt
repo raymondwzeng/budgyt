@@ -35,7 +35,7 @@ fun main() = application {
     val lifecycle = LifecycleRegistry()
 
     val root = runOnUiThread {
-        BudgetOverviewViewModel (
+        BudgetOverviewViewModel(
             componentContext = DefaultComponentContext(lifecycle = lifecycle),
             database = createDatabase(DriverFactory())
         )

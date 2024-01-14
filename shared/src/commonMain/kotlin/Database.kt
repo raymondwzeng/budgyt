@@ -13,16 +13,18 @@ expect class DriverFactory {
 
 fun createDatabase(driverFactory: DriverFactory): budgyt {
     val driver = driverFactory.createDriver()
-    val database = budgyt(driver, BucketAdapter = Bucket.Adapter(
-        idAdapter = UUIDAdapter,
-        bucket_typeAdapter = EnumColumnAdapter(),
-        bucket_estimateAdapter = BigDecimalAdapter
-    ), BudgetTransactionAdapter = BudgetTransaction.Adapter(
-        idAdapter = UUIDAdapter,
-        bucket_idAdapter = UUIDAdapter,
-        transaction_dateAdapter = LocalDateAdapter,
-        transaction_amountAdapter = BigDecimalAdapter
-    ))
+    val database = budgyt(
+        driver, BucketAdapter = Bucket.Adapter(
+            idAdapter = UUIDAdapter,
+            bucket_typeAdapter = EnumColumnAdapter(),
+            bucket_estimateAdapter = BigDecimalAdapter
+        ), BudgetTransactionAdapter = BudgetTransaction.Adapter(
+            idAdapter = UUIDAdapter,
+            bucket_idAdapter = UUIDAdapter,
+            transaction_dateAdapter = LocalDateAdapter,
+            transaction_amountAdapter = BigDecimalAdapter
+        )
+    )
 
     return database
 }

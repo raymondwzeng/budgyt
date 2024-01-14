@@ -73,7 +73,7 @@ class DefaultEditTransactionComponent(
         transactionRepository.addTransaction(newTransaction)
         try {
             transactionRepositoryHttp.addTransaction(newTransaction)
-        } catch(exception: Exception) {
+        } catch (exception: Exception) {
             println("EXCEPTION: ${exception.message}")
         }
         onTransactionUpdated(TransactionEditType.CREATE, newTransaction)
@@ -85,7 +85,7 @@ class DefaultEditTransactionComponent(
         transactionRepository.updateTransaction(updatedTransaction)
         try {
             transactionRepositoryHttp.updateTransaction(updatedTransaction)
-        } catch(exception: Exception) {
+        } catch (exception: Exception) {
             println("EXCEPTION: ${exception.message}")
         }
         onTransactionUpdated(TransactionEditType.UPDATE, updatedTransaction)
@@ -96,7 +96,7 @@ class DefaultEditTransactionComponent(
         transactionRepository.deleteTransaction(transactionId)
         try {
             transactionRepositoryHttp.deleteTransaction(transactionId)
-        } catch(exception: Exception) {
+        } catch (exception: Exception) {
             println("EXCEPTION: ${exception.message}")
         }
         onTransactionUpdated(

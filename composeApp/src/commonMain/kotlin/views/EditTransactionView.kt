@@ -68,9 +68,10 @@ fun EditTransactionView(component: EditTransactionComponent) {
         bucketList.value = component.getBuckets().sortedBy { bucket -> bucket.bucketType }
     }
     LaunchedEffect(bucketList.value) {
-        currentBucket.value = bucketList.value.find { bucket -> bucket.id == component.currentTransaction?.bucketId }
+        currentBucket.value =
+            bucketList.value.find { bucket -> bucket.id == component.currentTransaction?.bucketId }
     }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         //TODO: Component-ize
         Text(text = "Bucket", fontSize = 24.sp)
         Surface {
@@ -129,15 +130,15 @@ fun EditTransactionView(component: EditTransactionComponent) {
             DatePickerDialog(
                 onDismissRequest = { showDateSelectionDialog.value = false },
                 confirmButton = {
-                        Text(text = "OK", modifier = Modifier.padding(16.dp).clickable(onClick = {
-                            showDateSelectionDialog.value = false
-                        }))
+                    Text(text = "OK", modifier = Modifier.padding(16.dp).clickable(onClick = {
+                        showDateSelectionDialog.value = false
+                    }))
                 },
                 dismissButton = { //TODO: Remember old date chosen and revert onDismiss
                     Text(text = "Cancel", modifier = Modifier.padding(16.dp).clickable(onClick = {
                         showDateSelectionDialog.value = false
                     }))
-                }){
+                }) {
                 DatePicker(state = transactionDate)
             }
         }

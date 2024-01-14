@@ -28,8 +28,18 @@ fun main() {
 }
 
 internal fun Routing.registerRoutes() {
-    transactions(TransactionRepositoryImpl(budgyt = CoreModule.budgyt, coroutineDispatcher = CoreModule.DISPATCHER_IO))
-    buckets(BucketRepositoryImpl(budgyt = CoreModule.budgyt, coroutineDispatcher = CoreModule.DISPATCHER_IO))
+    transactions(
+        TransactionRepositoryImpl(
+            budgyt = CoreModule.budgyt,
+            coroutineDispatcher = CoreModule.DISPATCHER_IO
+        )
+    )
+    buckets(
+        BucketRepositoryImpl(
+            budgyt = CoreModule.budgyt,
+            coroutineDispatcher = CoreModule.DISPATCHER_IO
+        )
+    )
 }
 
 fun Application.module() {

@@ -28,7 +28,7 @@ class DefaultDetailsComponent(
     private val onNavigateToTransactionDetails: (transaction: Transaction) -> Unit,
     private val onNavigateToEditBucket: (bucket: Bucket) -> Unit,
     val onFinished: () -> Unit
-): DetailsComponent, ComponentContext by componentContext {
+) : DetailsComponent, ComponentContext by componentContext {
     override val bucketModel: MutableValue<Bucket> = item
     override fun navigateToTransactionDetail(transaction: Transaction) {
         onNavigateToTransactionDetails(transaction)

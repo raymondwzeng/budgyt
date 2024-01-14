@@ -27,9 +27,10 @@ fun TransactionInputComponent(
         singleLine = true,
         onValueChange = { newAmount ->
             var updatedValue = value
-            if(newAmount.text != formatted) {
+            if (newAmount.text != formatted) {
                 if (newAmount.text.length - newAmount.text.indexOfFirst { char -> char == '.' } <= 2) {
-                    updatedValue = updatedValue.movePointLeft(1) //We need to force the scale to be 2?
+                    updatedValue =
+                        updatedValue.movePointLeft(1) //We need to force the scale to be 2?
                     updatedValue = updatedValue.setScale(2, RoundingMode.DOWN)
                 } else {
                     val lastCharacter = newAmount.text[newAmount.text.length - 1]
