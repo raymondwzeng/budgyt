@@ -13,6 +13,7 @@ import com.arkivanov.decompose.value.MutableValue
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.decompose.value.update
 import com.technology626.budgyt.budgyt
+import io.ktor.client.HttpClient
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,6 +28,13 @@ import models.Transaction
 import models.toApplicationDataModel
 import models.toApplicationDataModelOfMonth
 import models.toContainerList
+import networking.BudgytHttpClient
+import networking.repository.BucketRepositoryHttp
+import networking.repository.TransactionRepositoryHttp
+import repository.BucketRepository
+import repository.BucketRepositoryImpl
+import repository.TransactionRepository
+import repository.TransactionRepositoryImpl
 import java.util.UUID
 
 interface BaseViewModel {
@@ -39,6 +47,8 @@ interface BaseViewModel {
     fun navigateToAddTransaction()
 
     fun navigateToAddBucket()
+
+    suspend fun pullCacheFromRemoteEndpoint()
 
     sealed class Child {
         class ListChild(val component: ListComponent) : Child()
@@ -55,7 +65,16 @@ interface BaseViewModel {
 class BudgetOverviewViewModel(
     componentContext: ComponentContext,
     database: budgyt,
-    val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val transactionRepository: TransactionRepository = TransactionRepositoryImpl(
+        database,
+        coroutineDispatcher
+    ),
+    private val bucketRepository: BucketRepository = BucketRepositoryImpl(
+        database,
+        coroutineDispatcher
+    ),
+    httpClient: HttpClient = BudgytHttpClient
 ) : BaseViewModel,
     ComponentContext by componentContext {
     private val navigation = StackNavigation<Config>()
@@ -64,6 +83,9 @@ class BudgetOverviewViewModel(
     override val cache = MutableValue(emptyList<Container>())
 
     override val store by lazy { database }
+
+    private val transactionRepositoryHttp = TransactionRepositoryHttp(httpClient)
+    private val bucketRepositoryHttp = BucketRepositoryHttp(httpClient)
 
     init {
         updateCache()
@@ -80,6 +102,43 @@ class BudgetOverviewViewModel(
 
     override fun onBackClicked(toIndex: Int) {
         navigation.popTo(toIndex)
+    }
+
+    override suspend fun pullCacheFromRemoteEndpoint() {
+        try {
+            val currentCache = bucketRepository.getBuckets().getOrThrow()
+            val result = bucketRepositoryHttp.getBuckets().getOrThrow()
+            currentCache.forEach { bucket -> //Remove buckets that don't exist within our upstream source
+                if (result.find { searchBucket -> searchBucket.id == bucket.id } == null) {
+                    bucketRepository.deleteBucket(bucket.id)
+                }
+                val localTransactions = transactionRepository.getTransactionsForBucketId(bucket.id).getOrThrow()
+                localTransactions.forEach {transaction ->  //Remove transactions that don't exist in our upstream
+                    if(bucket.transactions.find { searchTransaction -> searchTransaction.id == transaction.id } == null) {
+                        transactionRepository.deleteTransaction(transaction.id)
+                    }
+                }
+            }
+            for (bucket in result) {
+                if (currentCache.find { searchBucket -> searchBucket.id == bucket.id } == null) { //Add bucket if it doesn't exist. Could be replicated with an UPSERT statement.
+                    bucketRepository.addBucket(bucket)
+                } else {
+                    bucketRepository.editBucket(bucket)
+                }
+                val transactions =
+                    transactionRepository.getTransactionsForBucketId(bucket.id).getOrThrow()
+                bucket.transactions.forEach { transaction -> //Similar upsert logic to above
+                    if (transactions.find { searchTransaction -> searchTransaction.id == transaction.id } == null) {
+                        transactionRepository.addTransaction(transaction)
+                    } else {
+                        transactionRepository.updateTransaction(transaction)
+                    }
+                }
+            }
+            updateCache()
+        } catch (exception: Exception) {
+            println("Error while updating cache: $exception")
+        }
     }
 
     private fun child(config: Config, componentContext: ComponentContext): BaseViewModel.Child {
@@ -123,7 +182,7 @@ class BudgetOverviewViewModel(
                         budgyt = store,
                         currentDate = currentDate.value
                     )
-                }.toContainerList()
+                }.toContainerList().sortedBy { container -> container.containerType }
         }
     }
 
@@ -151,8 +210,8 @@ class BudgetOverviewViewModel(
     ): TransactionDetailsComponent {
         return DefaultTransactionDetailsComponent(
             componentContext = componentContext,
-            database = store,
-            dispatcher = coroutineDispatcher,
+            transactionRepository = transactionRepository,
+            transactionRepositoryHttp = transactionRepositoryHttp,
             transactionModel = MutableValue(transaction),
             onDeleteTransaction = { bucketId ->
                 updateCache()
@@ -196,8 +255,10 @@ class BudgetOverviewViewModel(
     ): EditTransactionComponent {
         return DefaultEditTransactionComponent(
             componentContext = componentContext,
-            dispatcher = coroutineDispatcher,
-            database = store,
+            transactionRepository = transactionRepository,
+            transactionRepositoryHttp = transactionRepositoryHttp,
+            bucketRepository = bucketRepository,
+            bucketRepositoryHttp = bucketRepositoryHttp,
             currentTransaction = transaction,
             onTransactionUpdated = { transactionEditType, transaction ->
                 updateCache()
@@ -232,8 +293,8 @@ class BudgetOverviewViewModel(
         return DefaultDetailsComponent(
             componentContext = componentContext,
             item = MutableValue(config.item),
-            dispatcher = coroutineDispatcher,
-            database = store,
+            bucketRepository = bucketRepository,
+            bucketRepositoryHttp = bucketRepositoryHttp,
             onFinished = {
                 updateCache()
                 navigation.pop()
@@ -254,8 +315,8 @@ class BudgetOverviewViewModel(
         return DefaultEditBucketComponent(
             componentContext = componentContext,
             bucket = bucket,
-            dispatcher = coroutineDispatcher,
-            database = store,
+            bucketRepository = bucketRepository,
+            bucketRepositoryHttp = bucketRepositoryHttp,
             onAddBucket = { bucketId ->
                 updateCache()
                 navigation.pop()

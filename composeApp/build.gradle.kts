@@ -42,6 +42,10 @@ kotlin {
             implementation(libs.decompose.extensions)
             implementation(compose.material3)
             implementation("org.jetbrains.compose.material:material-icons-extended-desktop:1.5.3")
+            implementation("io.ktor:ktor-client-core:2.3.6")
+            implementation("io.ktor:ktor-client-cio:2.3.6")
+            implementation("io.ktor:ktor-client-content-negotiation:2.3.6")
+            implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.6")
         }
     }
 }

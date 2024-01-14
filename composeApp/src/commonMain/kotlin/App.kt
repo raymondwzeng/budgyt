@@ -1,4 +1,3 @@
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -7,6 +6,8 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.primarySurface
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,11 +15,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.arkivanov.decompose.extensions.compose.subscribeAsState
 import components.AddItemFloatingActionButton
+import components.DeletionConfirmationDialog
+import kotlinx.coroutines.launch
 import viewmodels.BaseViewModel
 import views.BucketView
 import views.ContainerView
@@ -35,6 +41,8 @@ enum class DeviceType {
 @Composable
 fun App(deviceType: DeviceType, component: BaseViewModel) {
     val child = component.callstack.subscribeAsState()
+    val coroutineScope = rememberCoroutineScope()
+    val showPullDialog = remember { mutableStateOf(false) }
     MaterialTheme {
         Scaffold(
             topBar = {
@@ -56,13 +64,34 @@ fun App(deviceType: DeviceType, component: BaseViewModel) {
                                 tint = if (child.value.items.size > 1) MaterialTheme.colors.onPrimary else Color.LightGray
                             )
                         }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            showPullDialog.value = true
+                        }, enabled = child.value.items.size == 1) { //Make sure that sync is only available on root screen
+                            Icon(
+                                Icons.Filled.Sync,
+                                contentDescription = "Pull changes from remote database",
+                                tint = if (child.value.items.size == 1) MaterialTheme.colors.onPrimary else Color.LightGray
+                            )
+                        }
                     }
                 )
             },
-            floatingActionButton = {
-
-            }
         ) { innerPadding ->
+            if (showPullDialog.value) {
+                DeletionConfirmationDialog(
+                    text = "All buckets and transactions that don't exist in the backend will be deleted!",
+                    onConfirm = {
+                        coroutineScope.launch {
+                            component.pullCacheFromRemoteEndpoint()
+                        }
+                        showPullDialog.value = false
+                    },
+                    onDismissRequest = {
+                        showPullDialog.value = false
+                    })
+            }
             Column(
                 modifier = Modifier.fillMaxSize().padding(innerPadding),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -78,8 +107,10 @@ fun App(deviceType: DeviceType, component: BaseViewModel) {
                 }
             }
         }
-        if(child.value.active.instance is BaseViewModel.Child.ListChild) {
-            AddItemFloatingActionButton(onAddBucket = { component.navigateToAddBucket() }, onAddTransaction = { component.navigateToAddTransaction() })
+        if (child.value.active.instance is BaseViewModel.Child.ListChild) {
+            AddItemFloatingActionButton(
+                onAddBucket = { component.navigateToAddBucket() },
+                onAddTransaction = { component.navigateToAddTransaction() })
         }
     }
 }
